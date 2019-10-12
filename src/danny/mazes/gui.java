@@ -1,6 +1,5 @@
 package danny.mazes;
 
-import java.awt.Graphics;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
@@ -9,17 +8,19 @@ import javax.swing.JButton;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
-import javax.swing.JPanel;
 import javax.swing.JScrollPane;
+import javax.swing.JTextField;
 import javax.swing.WindowConstants;
 import javax.swing.filechooser.FileFilter;
 
 public class gui {
-	public static JFrame displayWindow = new JFrame("Maze Solver 2.7.1"); 
+	public static JFrame displayWindow = new JFrame("Maze Solver 2.8.0"); 
+	public static JTextField filenameInput = new JTextField("your Image Name.png");
+	
 	public static final JFileChooser fc = new JFileChooser(); 
 	public static final JButton button = new JButton("Select Image"); 
 	public static File file;
-	public static JScrollPane jsp;
+	public static JScrollPane scrollPane;
 	public static ImageIcon image;
 	
 	public static void main(String[] args) {
@@ -28,15 +29,15 @@ public class gui {
 	
 	public static void initRender() {
 		button.addActionListener(new Listener());
-		button.setSize(100, 100);
 		
-		displayWindow.setSize(1920, 1050);
+		displayWindow.setSize(500, 300);
 		displayWindow.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);		
 		displayWindow.add(button);		
+		displayWindow.add(filenameInput);	
 		displayWindow.setVisible(true);
 	}
 	
-	public static FileFilter ff = new FileFilter() {
+	public static FileFilter fileFilter = new FileFilter() {
 		
 		@Override
 		public String getDescription() {
@@ -45,7 +46,7 @@ public class gui {
 		
 		@Override
 		public boolean accept(File f) {
-			try {
+			if(f.isFile()) {
 				String[] temp = f.getName().split(".");
 				switch(temp[temp.length-1].toLowerCase()) {
 				case "png":
@@ -56,16 +57,15 @@ public class gui {
 					return true;
 				}
 				return false;
-			} catch(Exception e) {
-				return true;
-			}
+			} 			
+			return true;			
 		}
 	};
 	
 	public static File getImageFile() {
 		fc.setFileSelectionMode(JFileChooser.FILES_ONLY);
 		
-		fc.setFileFilter(ff);
+		fc.setFileFilter(fileFilter);
 		int returnVal = fc.showOpenDialog(displayWindow);
 		if (returnVal == JFileChooser.APPROVE_OPTION) {
 			File file = fc.getSelectedFile();
@@ -79,33 +79,47 @@ public class gui {
 		return null; 
 	}
 	
-	public static void maze() {
+	public static void solveMaze() {
 		System.out.println("Maze Loading");
-		mazeSolver mz = new mazeSolver();
+		String txt = "";
 		
-		mz.loadImage(file);		
+		if(filenameInput.getText().length()<=0) {
+			txt = "You forgot to name your output file.png";
+		} else {
+			for(String c: filenameInput.getText().toLowerCase().split("")) {
+				if(!"0123456789.-qwertyuiopasdfghjklzxcvbnm".contains(c)) {
+					txt += c;
+				}
+			}
+		}			
+		
+		mazeSolver mz = new mazeSolver(txt, file);
+			
 		Thread t = new Thread(mz, "Solver");
 		System.out.println("GUI change");
 		
 		short scale = 1;
-		if(mz.width*scale<500 && mz.height*scale<500) {			
-			while(mz.width*scale<700 && mz.height*scale<700) {
+		if(mazeSolver.width*scale<500 && mazeSolver.height*scale<500) {			
+			while(mazeSolver.width*scale<700 && mazeSolver.height*scale<700) {
 				scale++;
 			}
 		}
 		
-		mz.scale = scale;
+		mazeSolver.scale = scale;		
 
 		displayWindow.setResizable(false);
+		displayWindow.setSize(1920, 1050);
 		displayWindow.remove(button);
+		displayWindow.remove(filenameInput);
 		
 		
 		image = new ImageIcon(file.getAbsolutePath());
-		jsp = new JScrollPane(new JLabel(image),
+		scrollPane = new JScrollPane(new JLabel(image),
 	            JScrollPane.VERTICAL_SCROLLBAR_ALWAYS, 
 	            JScrollPane.HORIZONTAL_SCROLLBAR_ALWAYS);
-		jsp.setVisible(true);
-		displayWindow.add(jsp);
+		
+		scrollPane.setVisible(true);
+		displayWindow.add(scrollPane);
 		System.out.println("Maze Solving, output scale is " +scale);	
 		
 		long startTime = System.currentTimeMillis();
@@ -132,7 +146,7 @@ class Listener implements ActionListener {
 	public void actionPerformed(ActionEvent e) {
 		gui.file = gui.getImageFile();
 		System.out.println("Starting");
-		gui.maze();
+		gui.solveMaze();
 	}
 	
 }

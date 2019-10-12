@@ -11,19 +11,28 @@ import javax.swing.JPanel;
 
 public class mazeSolver  implements Runnable {
 	public static BufferedImage img = null;
-	public static BufferedImage img_ = null;
+	
 	public static int height;
 	public static int width;
-	public static Byte[][] imageArray;
-	public static Byte[][] graphArray;
 	public static short scale;
-	private static Thread rTHREAD;
-	private static render rOBJECT;
+	
+	private static String name;
+	
+	public static Byte[][] graphArray;
+
 	public static Graphics g;
+	private static Thread rTHREAD;
+	private static renderer rOBJECT;
+		
 	public static Thread[] solversTHR;
 	public static solver[] solversOBJ;
 	
-	public void loadImage(File image) {
+	public mazeSolver(String nameIn, File image) {
+		loadImage(image);
+		name = nameIn;
+	}
+	
+	private void loadImage(File image) {
 		//open image
 		try {
 		    img = ImageIO.read(image);
@@ -36,8 +45,7 @@ public class mazeSolver  implements Runnable {
 		height = img.getHeight();
 		width = img.getWidth();
 		//get pixels
-		imageArray = convertToArray(img); //1 = white, 0 = black
-		img_ = img;
+		graphArray = convertToArray(img); //1 = white, 0 = black
 	}
 	
 	public Byte[][] convertToArray(BufferedImage image)
@@ -122,7 +130,7 @@ public class mazeSolver  implements Runnable {
 		}
 	}	
 
-	public static int connectionCount(int x, int y) {
+	/*public static int connectionCount(int x, int y) {
 		int count = 0;
 		if(graphArray[x+1][y]==1) {
 			count++;
@@ -142,25 +150,25 @@ public class mazeSolver  implements Runnable {
 			System.out.println("ODD ERROR ON CONNECTION COUNTER");
 		}
 		return count;
-	}
+	}*/
 	
 	public static void renderMaze() {
-		//mazeSolver.rOBJECT.graphArray=graphArray;
 		mazeSolver.rTHREAD.run();
 	}
 
 	@Override
 	public void run() {
-		rOBJECT = new render();
+		rOBJECT = new renderer();
 		rOBJECT.scale=scale;
 		rOBJECT.width=width;
 		rOBJECT.height=height;
-		rOBJECT.img_=img_;
+		//rOBJECT.img_=img_;
 		rTHREAD = new Thread(rOBJECT,"RENDERER");
-		graphArray = imageArray;
+		//graphArray = imageArray;
 		//init
 		int cores = Runtime.getRuntime().availableProcessors() / 2;
-		if(cores==0) {
+		
+		if(cores<=0) {
 			cores=1;
 		}
 		//Doesn't eat all of the CPU -kind of important
@@ -221,7 +229,23 @@ public class mazeSolver  implements Runnable {
 				e.printStackTrace();
 			}
 		}
-		System.out.println("Final pass");
+		System.out.println("Final pass...");
+		
+		process();
+		
+		//
+		System.out.println("Finished.");
+		System.gc();
+		//out
+				
+		renderMaze();
+		
+		System.out.println("Saving");
+		intToImg(name);
+		System.out.println("Saved");
+	}
+	
+	private void process() {
 		//final check
 		int YMin=1;
 		int YMax=height-2;
@@ -233,165 +257,39 @@ public class mazeSolver  implements Runnable {
 			for(int y = YMin;y<YMax;y++) {
 				for(int x = 1;x<mazeSolver.width-1;x++) { //will not delete the start or end
 					if(mazeSolver.graphArray[x][y]==1) {
-						if(mazeSolver.connectionCount(x,y)==1) {
+						int count = 0;
+						if(mazeSolver.graphArray[x+1][y]==1) {
+							count++;
+						}
+						if(mazeSolver.graphArray[x-1][y]==1) {
+							count++;
+						}
+						if(mazeSolver.graphArray[x][y+1]==1) {
+							count++;
+						}
+						try {
+							if(mazeSolver.graphArray[x][y-1]==1) {
+								count++;
+							}
+						} catch(Exception e) {
+							e.printStackTrace();
+							System.out.println("ODD ERROR ON CONNECTION COUNTER");
+						}
+						if(count==1) {
 							changedThisPass = true;
 							mazeSolver.graphArray[x][y] = 0;	
+							img.setRGB(x, y, 0xFFFFFF);
 						}
 					}
 				}
 			}
-
+			
 			if(!changedThisPass) {
-				break;
+				break;	//TODO: appease mark
 			}
-			changedThisPass = false;
-			for(int y = YMax;y>YMin;y--) {
-				for(int x = 1;x<mazeSolver.width-1;x++) { //will not delete the start or end
-					if(mazeSolver.graphArray[x][y]==1) {
-						if(mazeSolver.connectionCount(x,y)==1) {
-							changedThisPass = true;
-							mazeSolver.graphArray[x][y] = 0;	
-						}
-					}
-				}
-			}
-
-			if(!changedThisPass) {
-				break;
-			}
-			changedThisPass = false;
-			for(int y = YMin;y<YMax;y++) {
-				for(int x = mazeSolver.width-2;x>0;x--) { //will not delete the start or end
-					if(mazeSolver.graphArray[x][y]==1) {
-						if(mazeSolver.connectionCount(x,y)==1) {
-							changedThisPass = true;
-							mazeSolver.graphArray[x][y] = 0;	
-						}
-					}
-				}
-			}	
-
-			if(!changedThisPass) {
-				break;
-			}
-			changedThisPass = false;
-			for(int y = YMax;y>YMin;y--) {
-				for(int x = mazeSolver.width-2;x>0;x--) { //will not delete the start or end
-					if(mazeSolver.graphArray[x][y]==1) {
-						if(mazeSolver.connectionCount(x,y)==1) {
-							changedThisPass = true;
-							mazeSolver.graphArray[x][y] = 0;	
-						}
-					}					
-				}
-			}	
-		}
-		
-		//
-		System.out.println("finished");
-		System.gc();
-		//out
-				
-		renderMaze();
-		
-		System.out.println("saving");
-		intToImg("MazeSolverOutput-"+Math.floor(System.currentTimeMillis())+".png");
-		System.out.println("saved");
-	}
-}
-class render implements Runnable {
-	public Byte[][] graphArray;
-	public int width;
-	public int height;
-	public int scale;
-	public BufferedImage img_;
-	
-	@Override
-	public void run() {
-		System.out.println("Render call");
-		Byte[][] pxls=mazeSolver.graphArray;
-		int[][] image_ = new int[this.width][this.height];
-		final int height = this.height;
-		final int width = this.width;
-		for(int y = 0;y<height;y++) {
-			for(int x = 0;x<width;x++) {
-				if(pxls[x][y]==1) {
-					image_[x][y]=1;	
-				} else {
-					image_[x][y]=0;
-				}
-			}
-		}
-		Raster t = mazeSolver.img_.getData();
-		BufferedImage image = new BufferedImage(mazeSolver.width, mazeSolver.height
-				, BufferedImage.TYPE_INT_RGB);
-		int[] temp = new int[90];
-		for (int y = 0; y < height; y++) {
-		    for (int x = 0; x < width; x++) {
-		    	if(image_[x][y]==1) {
-		    		image.setRGB(x, y, 0xff0000);
-		    	} else {
-		    		if( t.getPixel(x, y, temp)[0]!=0 ) {
-				   		image.setRGB(x, y, 0xffffff );				    			
-			   		} else {
-			    		image.setRGB(x, y, 0x000000 );			    			
-			   		}
-		    	}
-		    }
-		}
-		gui.image.setImage(image);
-		//gui.canv.getGraphics().drawImage( image.getScaledInstance( 
-		//		  mazeSolver.width * mazeSolver.scale,
-		//		  mazeSolver.height * mazeSolver.scale,
-		//          Image.SCALE_SMOOTH) ,0 ,0 , gui.canv);
-		System.gc();
-	}
-}
-class solver implements Runnable {
-	public int YMin;
-	public int YMax;
-	public Boolean finished;	
-	
-	@Override
-	public void run() {
-		boolean changedThisPass = true;
-		this.finished=false;
-		while(changedThisPass) {	
+			
 			changedThisPass = false;
 			
-			for(int y = YMin;y<YMax;y++) {
-				for(int x = 1;x<mazeSolver.width-1;x++) { //will not delete the start or end
-					if(mazeSolver.graphArray[x][y]==1) {
-						int count = 0;
-						if(mazeSolver.graphArray[x+1][y]==1) {
-							count++;
-						}
-						if(mazeSolver.graphArray[x-1][y]==1) {
-							count++;
-						}
-						if(mazeSolver.graphArray[x][y+1]==1) {
-							count++;
-						}
-						try {
-							if(mazeSolver.graphArray[x][y-1]==1) {
-								count++;
-							}
-						} catch(Exception e) {
-							e.printStackTrace();
-							System.out.println("ODD ERROR ON CONNECTION COUNTER");
-				}
-				if(count==1) {
-											changedThisPass = true;
-											mazeSolver.graphArray[x][y] = 0;	
-				}
-					}
-				}
-			}
-
-			if(!changedThisPass) {
-				break;
-			}
-			changedThisPass = false;
 			for(int y = YMax;y>YMin;y--) {
 				for(int x = 1;x<mazeSolver.width-1;x++) { //will not delete the start or end
 					if(mazeSolver.graphArray[x][y]==1) {
@@ -412,23 +310,24 @@ class solver implements Runnable {
 						} catch(Exception e) {
 							e.printStackTrace();
 							System.out.println("ODD ERROR ON CONNECTION COUNTER");
-				}
-				if(count==1) {
-											changedThisPass = true;
-											mazeSolver.graphArray[x][y] = 0;	
-				}
+						}
+						if(count==1) {
+							changedThisPass = true;
+							mazeSolver.graphArray[x][y] = 0;	
+							img.setRGB(x, y, 0xFFFFFF);
+						}
 					}
 				}
 			}
 
 			if(!changedThisPass) {
-				break;
+				break;	//TODO: appease mark
 			}
+			
 			changedThisPass = false;
 			for(int y = YMin;y<YMax;y++) {
 				for(int x = mazeSolver.width-2;x>0;x--) { //will not delete the start or end
-					if(mazeSolver.graphArray[x][y]==1) {
-						int count = 0;
+					if(mazeSolver.graphArray[x][y]==1) {int count = 0;
 						if(mazeSolver.graphArray[x+1][y]==1) {
 							count++;
 						}
@@ -445,18 +344,20 @@ class solver implements Runnable {
 						} catch(Exception e) {
 							e.printStackTrace();
 							System.out.println("ODD ERROR ON CONNECTION COUNTER");
-				}
-				if(count==1) {
-											changedThisPass = true;
-											mazeSolver.graphArray[x][y] = 0;	
-				}
+						}
+						if(count==1) {
+							changedThisPass = true;
+							mazeSolver.graphArray[x][y] = 0;	
+							img.setRGB(x, y, 0xFFFFFF);
+						}
 					}
 				}
 			}	
 
 			if(!changedThisPass) {
-				break;
+				break;	//TODO: appease mark
 			}
+			
 			changedThisPass = false;
 			for(int y = YMax;y>YMin;y--) {
 				for(int x = mazeSolver.width-2;x>0;x--) { //will not delete the start or end
@@ -478,16 +379,15 @@ class solver implements Runnable {
 						} catch(Exception e) {
 							e.printStackTrace();
 							System.out.println("ODD ERROR ON CONNECTION COUNTER");
-				}
-				if(count==1) {
-											changedThisPass = true;
-											mazeSolver.graphArray[x][y] = 0;	
-				}
+						}
+						if(count==1) {
+							changedThisPass = true;
+							mazeSolver.graphArray[x][y] = 0;	
+							img.setRGB(x, y, 0xFFFFFF);
+						}
 					}					
 				}
 			}	
-		}	
-		this.finished=true;	
-		System.out.println("Thread finished.");
-}
+		}
+	}
 }
