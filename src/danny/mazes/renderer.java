@@ -1,53 +1,44 @@
 package danny.mazes;
 
+import java.awt.geom.AffineTransform;
+import java.awt.image.AffineTransformOp;
 import java.awt.image.BufferedImage;
-import java.awt.image.Raster;
+import javafx.embed.swing.SwingFXUtils;
+import javafx.scene.image.Image;
 
 public class renderer implements Runnable {
-	public Byte[][] graphArray;
 	public int width;
 	public int height;
-	public short scale;
-	public BufferedImage img_;
+	public float scale;
 	
 	@Override
 	public void run() {
-		System.out.println("Render call");
-		Byte[][] pxls=mazeSolver.graphArray;
-		int[][] image_ = new int[this.width][this.height];
-		final int height = this.height;
-		final int width = this.width;
-		for(int y = 0;y<height;y++) {
-			for(int x = 0;x<width;x++) {
-				if(pxls[x][y]==1) {
-					image_[x][y]=1;	
-				} else {
-					image_[x][y]=0;
-				}
-			}
+		long time = System.currentTimeMillis();
+
+		if(scale!=1) { 
+			BufferedImage after = new BufferedImage((int) Math.ceil(width*scale), (int) Math.ceil(height*scale)
+					, BufferedImage.TYPE_INT_RGB);
+			AffineTransform at = new AffineTransform();
+			at.scale(scale, scale);
+			AffineTransformOp scaleOp = 
+			   new AffineTransformOp(at, AffineTransformOp.TYPE_NEAREST_NEIGHBOR);
+			after = scaleOp.filter(mazeSolver.mazeImage, after);
+			
+			Image image = SwingFXUtils.toFXImage(after, null);
+			
+			guiJavaFX.graphicsContext.drawImage(image, 0, 0);
+			
+			image = null;
+			after = null;
+		} else {
+			Image image = SwingFXUtils.toFXImage(mazeSolver.mazeImage, null);
+			
+			guiJavaFX.graphicsContext.drawImage(image, 0, 0);
+			
+			image = null;
 		}
-		Raster t = mazeSolver.img.getData();
-		BufferedImage image = new BufferedImage(mazeSolver.width, mazeSolver.height
-				, BufferedImage.TYPE_INT_RGB);
-		/*int[] temp = new int[90];
-		for (int y = 0; y < height; y++) {
-		    for (int x = 0; x < width; x++) {
-		    	if(image_[x][y]==1) {
-		    		image.setRGB(x, y, 0xff0000);
-		    	} else {
-		    		if( t.getPixel(x, y, temp)[0]!=0 ) {
-				   		image.setRGB(x, y, 0xffffff );				    			
-			   		} else {
-			    		image.setRGB(x, y, 0x000000 );			    			
-			   		}
-		    	}
-		    }
-		}*/
-		gui.image.setImage(image);
-		//gui.canv.getGraphics().drawImage( image.getScaledInstance( 
-		//		  mazeSolver.width * mazeSolver.scale,
-		//		  mazeSolver.height * mazeSolver.scale,
-		//          Image.SCALE_SMOOTH) ,0 ,0 , gui.canv);
+		 
+		System.out.println("Render call - " + (System.currentTimeMillis() - time) + "ms");
 		System.gc();
 	}
 }

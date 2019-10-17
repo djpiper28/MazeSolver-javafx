@@ -13,20 +13,20 @@ public class solver implements Runnable {
 			changedThisPass = false;
 			
 			for(int y = YMin;y<YMax;y++) {
-				for(int x = 1;x<mazeSolver.width-1;x++) { //will not delete the start or end
-					if(mazeSolver.graphArray[x][y]==1) {
+				for(int x = 1;x<mazeSolver.imageWidth-1;x++) { //will not delete the start or end
+					if(mazeSolver.graphArray[x][y]) {
 						int count = 0;
-						if(mazeSolver.graphArray[x+1][y]==1) {
+						if(mazeSolver.graphArray[x+1][y]) {
 							count++;
 						}
-						if(mazeSolver.graphArray[x-1][y]==1) {
+						if(mazeSolver.graphArray[x-1][y]) {
 							count++;
 						}
-						if(mazeSolver.graphArray[x][y+1]==1) {
+						if(mazeSolver.graphArray[x][y+1]) {
 							count++;
 						}
 						try {
-							if(mazeSolver.graphArray[x][y-1]==1) {
+							if(mazeSolver.graphArray[x][y-1]) {
 								count++;
 							}
 						} catch(Exception e) {
@@ -35,32 +35,29 @@ public class solver implements Runnable {
 						}
 						if(count==1) {
 							changedThisPass = true;
-							mazeSolver.graphArray[x][y] = 0;
-							mazeSolver.img.setRGB(x, y, 0xFFFFFF);	
+							mazeSolver.graphArray[x][y] = false;
+							mazeSolver.mazeImage.setRGB(x, y, mazeSolver.path);	
 						}
 					}
 				}
 			}
-
-			if(!changedThisPass) {
-				break;
-			}
+			
 			changedThisPass = false;
 			for(int y = YMax;y>YMin;y--) {
-				for(int x = 1;x<mazeSolver.width-1;x++) { //will not delete the start or end
-					if(mazeSolver.graphArray[x][y]==1) {
+				for(int x = 1;x<mazeSolver.imageWidth-1;x++) { //will not delete the start or end
+					if(mazeSolver.graphArray[x][y]) {
 						int count = 0;
-						if(mazeSolver.graphArray[x+1][y]==1) {
+						if(mazeSolver.graphArray[x+1][y]) {
 							count++;
 						}
-						if(mazeSolver.graphArray[x-1][y]==1) {
+						if(mazeSolver.graphArray[x-1][y]) {
 							count++;
 						}
-						if(mazeSolver.graphArray[x][y+1]==1) {
+						if(mazeSolver.graphArray[x][y+1]) {
 							count++;
 						}
 						try {
-							if(mazeSolver.graphArray[x][y-1]==1) {
+							if(mazeSolver.graphArray[x][y-1]) {
 								count++;
 							}
 						} catch(Exception e) {
@@ -69,32 +66,29 @@ public class solver implements Runnable {
 						}
 						if(count==1) {
 							changedThisPass = true;
-							mazeSolver.graphArray[x][y] = 0;
-							mazeSolver.img.setRGB(x, y, 0xFFFFFF);		
+							mazeSolver.graphArray[x][y] = false;
+							mazeSolver.mazeImage.setRGB(x, y, mazeSolver.path);		
 						}
 					}
 				}
 			}
-
-			if(!changedThisPass) {
-				break;
-			}
+			
 			changedThisPass = false;
 			for(int y = YMin;y<YMax;y++) {
-				for(int x = mazeSolver.width-2;x>0;x--) { //will not delete the start or end
-					if(mazeSolver.graphArray[x][y]==1) {
+				for(int x = mazeSolver.imageWidth-2;x>0;x--) { //will not delete the start or end
+					if(mazeSolver.graphArray[x][y]) {
 						int count = 0;
-						if(mazeSolver.graphArray[x+1][y]==1) {
+						if(mazeSolver.graphArray[x+1][y]) {
 							count++;
 						}
-						if(mazeSolver.graphArray[x-1][y]==1) {
+						if(mazeSolver.graphArray[x-1][y]) {
 							count++;
 						}
-						if(mazeSolver.graphArray[x][y+1]==1) {
+						if(mazeSolver.graphArray[x][y+1]) {
 							count++;
 						}
 						try {
-							if(mazeSolver.graphArray[x][y-1]==1) {
+							if(mazeSolver.graphArray[x][y-1]) {
 								count++;
 							}
 						} catch(Exception e) {
@@ -103,32 +97,29 @@ public class solver implements Runnable {
 						}
 						if(count==1) {
 							changedThisPass = true;
-							mazeSolver.graphArray[x][y] = 0;	
-							mazeSolver.img.setRGB(x, y, 0xFFFFFF);	
+							mazeSolver.graphArray[x][y] = false;	
+							mazeSolver.mazeImage.setRGB(x, y, mazeSolver.path);	
 						}
 					}
 				}
 			}	
-
-			if(!changedThisPass) {
-				break;
-			}
+			
 			changedThisPass = false;
 			for(int y = YMax;y>YMin;y--) {
-				for(int x = mazeSolver.width-2;x>0;x--) { //will not delete the start or end
-					if(mazeSolver.graphArray[x][y]==1) {
+				for(int x = mazeSolver.imageWidth-2;x>0;x--) { //will not delete the start or end
+					if(mazeSolver.graphArray[x][y]) {
 						int count = 0;
-						if(mazeSolver.graphArray[x+1][y]==1) {
+						if(mazeSolver.graphArray[x+1][y]) {
 							count++;
 						}
-						if(mazeSolver.graphArray[x-1][y]==1) {
+						if(mazeSolver.graphArray[x-1][y]) {
 							count++;
 						}
-						if(mazeSolver.graphArray[x][y+1]==1) {
+						if(mazeSolver.graphArray[x][y+1]) {
 							count++;
 						}
 						try {
-							if(mazeSolver.graphArray[x][y-1]==1) {
+							if(mazeSolver.graphArray[x][y-1]) {
 								count++;
 							}
 						} catch(Exception e) {
@@ -137,8 +128,8 @@ public class solver implements Runnable {
 						}
 						if(count==1) {
 							changedThisPass = true;
-							mazeSolver.graphArray[x][y] = 0;
-							mazeSolver.img.setRGB(x, y, 0xFFFFFF);		
+							mazeSolver.graphArray[x][y] = false;
+							mazeSolver.mazeImage.setRGB(x, y, mazeSolver.path);		
 						}
 					}					
 				}

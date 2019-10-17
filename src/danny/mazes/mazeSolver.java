@@ -1,170 +1,106 @@
 package danny.mazes;
 
-import java.awt.Graphics;
-import java.awt.Image;
 import java.awt.image.BufferedImage;
-import java.awt.image.Raster;
 import java.io.File;
 import java.io.IOException;
 import javax.imageio.ImageIO;
-import javax.swing.JPanel;
+import javafx.scene.image.ImageView;
 
-public class mazeSolver  implements Runnable {
-	public static BufferedImage img = null;
+public class mazeSolver implements Runnable {
 	
-	public static int height;
-	public static int width;
-	public static short scale;
+	public static BufferedImage mazeImage = null;
 	
-	private static String name;
+	public static int imageHeight;
+	public static int imageWidth;
+	public static float imageRenderScale;
 	
-	public static Byte[][] graphArray;
-
-	public static Graphics g;
-	private static Thread rTHREAD;
-	private static renderer rOBJECT;
+	private static String filenameForSaving;
+	
+	public static boolean[][] graphArray;
+	
+	public static final int path = 0xFFFFFF;
+	public static final int exitPath = 0xFF00FF;
+	
+	public static ImageView imageView;
+	private static Thread renderThread;
+	private static renderer renderObject;
 		
 	public static Thread[] solversTHR;
 	public static solver[] solversOBJ;
 	
 	public mazeSolver(String nameIn, File image) {
 		loadImage(image);
-		name = nameIn;
+		filenameForSaving = nameIn;
 	}
 	
 	private void loadImage(File image) {
 		//open image
 		try {
-		    img = ImageIO.read(image);
+		    mazeImage = ImageIO.read(image);
 		} catch (IOException e) {
 			System.out.println("Error with file.");
 			e.printStackTrace();
 			System.exit(1);
 		}	
 		//init
-		height = img.getHeight();
-		width = img.getWidth();
+		imageHeight = mazeImage.getHeight();
+		imageWidth = mazeImage.getWidth();
 		//get pixels
-		graphArray = convertToArray(img); //1 = white, 0 = black
+		convertToArray(mazeImage); //1 = white, 0 = black
 	}
 	
-	public Byte[][] convertToArray(BufferedImage image)
+	private void convertToArray(BufferedImage image)
 	{
 		int width = image.getWidth();
 		int height = image.getHeight();
+		graphArray = new boolean[width][height];
+		BufferedImage temp = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
 		//get raw data
-		Byte[][] result = new Byte[image.getWidth()][image.getHeight()];
-		Raster t = image.getData();
+		int zero = mazeImage.getRGB(0,0);
 		for(int y = 0;y<height;y++) {
-			int[] temp =  new int[width];
 			for(int x = 0;x<width;x++) {
-				if(t.getPixels( x, y, 1, 1, temp)[0] != 0) {
-					result[x][y]=1;
+				if(mazeImage.getRGB(x, y) != zero) {
+					graphArray[x][y] = true;
+					temp.setRGB(x, y, exitPath);
 				} else {
-					result[x][y]=0;
+					graphArray[x][y] = false;
+					temp.setRGB(x, y, 0);
 				}
-			}	
-			
+			}				
  		}			
-		mazeSolver.width = width;
-		mazeSolver.height = height;
-		return result;
-	}
+		imageWidth = width;
+		imageHeight = height;
+		mazeImage = temp;
+		
+		imageHeight = mazeImage.getHeight();
+		imageWidth = mazeImage.getWidth();
+	}	
 	
-	
-	
-	private void intToImg(String path){
-		int[][] image_ = new int[width][height];
-		for(int y = 0;y<height;y++) {
-			for(int x = 0;x<width;x++) {
-				if(graphArray[x][y]==1) {
-					image_[x][y]=1;	
-				} else {
-					image_[x][y]=0;
-				}
-			}
-		}
+	private void saveFile(String path){
 		try {
-			Raster t = img.getData();
-			final BufferedImage image = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
-			int[] temp = new int[90];
-			for (int y = 0; y < height; y++) {
-			    for (int x = 0; x < width; x++) {
-			    	if(image_[x][y]==1) {
-			    		image.setRGB(x, y, 0xff0000);
-			    	} else {
-			    		if( t.getPixel(x, y, temp)[0]!=0 ) {
-				    		image.setRGB(x, y, 0xffffff );				    			
-			    		} else {
-				    		image.setRGB(x, y, 0x000000 );			    			
-			    		}
-			    	}
-			    }
-			}
-			ImageIO.write(image, "png", new File(path));
+			if(path.contains(".png*") || !path.contains(".png")) {
+				path+=".png";
+			} 
+			ImageIO.write(mazeImage, "png", new File(path));
 		} catch(Exception e) {
 			e.printStackTrace();
-			System.out.println("Save error. - retrying");
-			try {
-				Raster t = img.getData();
-				final BufferedImage image = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
-				int[] temp = new int[90];
-				for (int y = 0; y < height; y++) {
-				    for (int x = 0; x < width; x++) {
-				    	if(image_[x][y]==1) {
-				    		image.setRGB(x, y, 0xff0000);
-				    	} else {
-				    		if( t.getPixel(x, y, temp)[0]!=0 ) {
-					    		image.setRGB(x, y, 0xffffff );				    			
-				    		} else {
-					    		image.setRGB(x, y, 0x000000 );			    			
-				    		}
-				    	}
-				    }
-				}
-				ImageIO.write(image, "png", new File(path));
-			} catch(Exception e1) {
-				e1.printStackTrace();
-				System.out.println("Save error again. - exiting");
-			}
 		}
 	}	
-
-	/*public static int connectionCount(int x, int y) {
-		int count = 0;
-		if(graphArray[x+1][y]==1) {
-			count++;
-		}
-		if(graphArray[x-1][y]==1) {
-			count++;
-		}
-		if(graphArray[x][y+1]==1) {
-			count++;
-		}
-		try {
-			if(graphArray[x][y-1]==1) {
-				count++;
-			}
-		} catch(Exception e) {
-			e.printStackTrace();
-			System.out.println("ODD ERROR ON CONNECTION COUNTER");
-		}
-		return count;
-	}*/
 	
 	public static void renderMaze() {
-		mazeSolver.rTHREAD.run();
+		mazeSolver.renderThread.run();
 	}
 
 	@Override
 	public void run() {
-		rOBJECT = new renderer();
-		rOBJECT.scale=scale;
-		rOBJECT.width=width;
-		rOBJECT.height=height;
-		//rOBJECT.img_=img_;
-		rTHREAD = new Thread(rOBJECT,"RENDERER");
-		//graphArray = imageArray;
+		mazeImage.setAccelerationPriority(1);
+		renderObject = new renderer();
+		renderObject.scale=imageRenderScale;
+		renderObject.width=imageWidth;
+		renderObject.height=imageHeight;
+
+		renderThread = new Thread(renderObject,"RENDERER");
+
 		//init
 		int cores = Runtime.getRuntime().availableProcessors() / 2;
 		
@@ -178,9 +114,12 @@ public class mazeSolver  implements Runnable {
 		for(int i = 0;i<cores;i++) {
 			solversOBJ[i] = new solver();
 		}
-		int segments = height / cores;
+		//get and set segments
+		int segments = imageHeight / cores;
+		
+		System.out.println("Image dimensions: ("+imageHeight+", "+imageWidth+")");		
 		System.out.println(cores+" Cores Detected - thread y height is "+segments
-				+" running with "+Runtime.getRuntime().totalMemory()+" bytes of ram");
+				+" running with "+(Runtime.getRuntime().totalMemory()/1024/1024)+" MB of ram");
 		int i = 0;		
 		for(solver s:solversOBJ) {
 			//set s
@@ -190,16 +129,13 @@ public class mazeSolver  implements Runnable {
 			}
 			s.YMax = s.YMin + segments - 1;
 			if(i+1==cores) {
-				s.YMax += width-s.YMax -1;
-			}
-			if(s.YMax>=height-1) {
-				s.YMax=height-2;
+				s.YMax=imageHeight-2;
 			}
 			if(s.YMin==0) {
 				s.YMin=1;
 			}
-			//set thread and exec
-			solversTHR[i] = new Thread(s,"Solver thread "+i);
+			//init thread and execute
+			solversTHR[i] = new Thread(s,"Solver thread: "+i+" of "+cores);
 			solversTHR[i].start();
 			i++;
 		}
@@ -214,16 +150,19 @@ public class mazeSolver  implements Runnable {
 		long time = System.currentTimeMillis();
 		System.out.println("started solve");
 		while(!finished) {
+			long renderTime = System.currentTimeMillis();
 			finished = true;
 			for(solver s:solversOBJ) {
 				if(!s.finished) {
 					finished=false;
-					break;		//optimisation
 				}
 			}
 			try {
-				Thread.sleep(50);
-				renderMaze();	
+				renderMaze();
+				long x = 16 - System.currentTimeMillis() - renderTime;
+				if(x > 0) {
+					Thread.sleep(x);
+				}
 				System.gc();
 			} catch (InterruptedException e) {
 				e.printStackTrace();
@@ -234,41 +173,49 @@ public class mazeSolver  implements Runnable {
 		process();
 		
 		//
-		System.out.println("Finished.");
+		System.out.println("Finished after " + (System.currentTimeMillis()-time) + "ms.");
 		System.gc();
 		//out
 				
 		renderMaze();
 		
 		System.out.println("Saving");
-		intToImg(name);
+		saveFile(filenameForSaving);
 		System.out.println("Saved");
+		
+		try {
+			Thread.sleep(1500);
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
+		//Exit as we are done!
+		System.exit(0);		
 	}
 	
 	private void process() {
 		//final check
 		int YMin=1;
-		int YMax=height-2;
+		int YMax=imageHeight-2;
 		boolean changedThisPass = true;
 		while(changedThisPass) {	
 			renderMaze();	
 			changedThisPass = false;
 			
 			for(int y = YMin;y<YMax;y++) {
-				for(int x = 1;x<mazeSolver.width-1;x++) { //will not delete the start or end
-					if(mazeSolver.graphArray[x][y]==1) {
+				for(int x = 1;x<mazeSolver.imageWidth-1;x++) { //will not delete the start or end
+					if(mazeSolver.graphArray[x][y]) {
 						int count = 0;
-						if(mazeSolver.graphArray[x+1][y]==1) {
+						if(mazeSolver.graphArray[x+1][y]) {
 							count++;
 						}
-						if(mazeSolver.graphArray[x-1][y]==1) {
+						if(mazeSolver.graphArray[x-1][y]) {
 							count++;
 						}
-						if(mazeSolver.graphArray[x][y+1]==1) {
+						if(mazeSolver.graphArray[x][y+1]) {
 							count++;
 						}
 						try {
-							if(mazeSolver.graphArray[x][y-1]==1) {
+							if(mazeSolver.graphArray[x][y-1]) {
 								count++;
 							}
 						} catch(Exception e) {
@@ -277,34 +224,30 @@ public class mazeSolver  implements Runnable {
 						}
 						if(count==1) {
 							changedThisPass = true;
-							mazeSolver.graphArray[x][y] = 0;	
-							img.setRGB(x, y, 0xFFFFFF);
+							mazeSolver.graphArray[x][y] = false;	
+							mazeImage.setRGB(x, y, path);
 						}
 					}
 				}
-			}
-			
-			if(!changedThisPass) {
-				break;	//TODO: appease mark
 			}
 			
 			changedThisPass = false;
 			
 			for(int y = YMax;y>YMin;y--) {
-				for(int x = 1;x<mazeSolver.width-1;x++) { //will not delete the start or end
-					if(mazeSolver.graphArray[x][y]==1) {
+				for(int x = 1;x<mazeSolver.imageWidth-1;x++) { //will not delete the start or end
+					if(mazeSolver.graphArray[x][y]) {
 						int count = 0;
-						if(mazeSolver.graphArray[x+1][y]==1) {
+						if(mazeSolver.graphArray[x+1][y]) {
 							count++;
 						}
-						if(mazeSolver.graphArray[x-1][y]==1) {
+						if(mazeSolver.graphArray[x-1][y]) {
 							count++;
 						}
-						if(mazeSolver.graphArray[x][y+1]==1) {
+						if(mazeSolver.graphArray[x][y+1]) {
 							count++;
 						}
 						try {
-							if(mazeSolver.graphArray[x][y-1]==1) {
+							if(mazeSolver.graphArray[x][y-1]) {
 								count++;
 							}
 						} catch(Exception e) {
@@ -313,32 +256,29 @@ public class mazeSolver  implements Runnable {
 						}
 						if(count==1) {
 							changedThisPass = true;
-							mazeSolver.graphArray[x][y] = 0;	
-							img.setRGB(x, y, 0xFFFFFF);
+							mazeSolver.graphArray[x][y] = false;	
+							mazeImage.setRGB(x, y, path);
 						}
 					}
 				}
-			}
-
-			if(!changedThisPass) {
-				break;	//TODO: appease mark
 			}
 			
 			changedThisPass = false;
 			for(int y = YMin;y<YMax;y++) {
-				for(int x = mazeSolver.width-2;x>0;x--) { //will not delete the start or end
-					if(mazeSolver.graphArray[x][y]==1) {int count = 0;
-						if(mazeSolver.graphArray[x+1][y]==1) {
+				for(int x = mazeSolver.imageWidth-2;x>0;x--) { //will not delete the start or end
+					if(mazeSolver.graphArray[x][y]) {
+						int count = 0;
+						if(mazeSolver.graphArray[x+1][y]) {
 							count++;
 						}
-						if(mazeSolver.graphArray[x-1][y]==1) {
+						if(mazeSolver.graphArray[x-1][y]) {
 							count++;
 						}
-						if(mazeSolver.graphArray[x][y+1]==1) {
+						if(mazeSolver.graphArray[x][y+1]) {
 							count++;
 						}
 						try {
-							if(mazeSolver.graphArray[x][y-1]==1) {
+							if(mazeSolver.graphArray[x][y-1]) {
 								count++;
 							}
 						} catch(Exception e) {
@@ -347,33 +287,29 @@ public class mazeSolver  implements Runnable {
 						}
 						if(count==1) {
 							changedThisPass = true;
-							mazeSolver.graphArray[x][y] = 0;	
-							img.setRGB(x, y, 0xFFFFFF);
+							mazeSolver.graphArray[x][y] = false;	
+							mazeImage.setRGB(x, y, path);
 						}
 					}
 				}
 			}	
-
-			if(!changedThisPass) {
-				break;	//TODO: appease mark
-			}
 			
 			changedThisPass = false;
 			for(int y = YMax;y>YMin;y--) {
-				for(int x = mazeSolver.width-2;x>0;x--) { //will not delete the start or end
-					if(mazeSolver.graphArray[x][y]==1) {
+				for(int x = mazeSolver.imageWidth-2;x>0;x--) { //will not delete the start or end
+					if(mazeSolver.graphArray[x][y]) {
 						int count = 0;
-						if(mazeSolver.graphArray[x+1][y]==1) {
+						if(mazeSolver.graphArray[x+1][y]) {
 							count++;
 						}
-						if(mazeSolver.graphArray[x-1][y]==1) {
+						if(mazeSolver.graphArray[x-1][y]) {
 							count++;
 						}
-						if(mazeSolver.graphArray[x][y+1]==1) {
+						if(mazeSolver.graphArray[x][y+1]) {
 							count++;
 						}
 						try {
-							if(mazeSolver.graphArray[x][y-1]==1) {
+							if(mazeSolver.graphArray[x][y-1]) {
 								count++;
 							}
 						} catch(Exception e) {
@@ -382,12 +318,13 @@ public class mazeSolver  implements Runnable {
 						}
 						if(count==1) {
 							changedThisPass = true;
-							mazeSolver.graphArray[x][y] = 0;	
-							img.setRGB(x, y, 0xFFFFFF);
+							mazeSolver.graphArray[x][y] = false;	
+							mazeImage.setRGB(x, y, path);
 						}
 					}					
 				}
 			}	
 		}
 	}
+
 }
