@@ -20,6 +20,7 @@ import javafx.stage.Stage;
 public class guiJavaFX extends Application { 
 
 	private final static String font = "Lucida Console";
+	public final static String version = "2.8.2";
 	private static File imageFile;
 	private static Canvas canvas; 
 
@@ -155,7 +156,7 @@ public class guiJavaFX extends Application {
 			memStatus += "Low RAM! ";
 		}
 		memStatus+=Runtime.getRuntime().totalMemory()/1024/1024/1024+"GB RAM Default.";
-		stage.setTitle("Maze Solver 2.8.1 - "+memStatus); 
+		stage.setTitle("Maze Solver v"+version+" - "+memStatus); 
 	         
 		//Adding scene to the stage 
 		stage.setScene(inputScene); 
