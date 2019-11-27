@@ -14,7 +14,7 @@ public class mazeSolver implements Runnable {
 	public static int imageWidth;
 	public static float imageRenderScale;
 	
-	private static String filenameForSaving;
+	private static File outputFile;
 	
 	public static boolean[][] graphArray;
 	
@@ -28,9 +28,9 @@ public class mazeSolver implements Runnable {
 	public static Thread[] solversTHR;
 	public static solver[] solversOBJ;
 	
-	public mazeSolver(String nameIn, File image) {
+	public mazeSolver(File outputFile, File image) {
 		loadImage(image);
-		filenameForSaving = nameIn;
+		this.outputFile = outputFile;
 	}
 	
 	private void loadImage(File image) {
@@ -76,12 +76,9 @@ public class mazeSolver implements Runnable {
 		imageWidth = mazeImage.getWidth();
 	}	
 	
-	private void saveFile(String path){
+	private void saveFile(File fileToSaveAs){
 		try {
-			if(path.contains(".png*") || !path.contains(".png")) {
-				path+=".png";
-			} 
-			ImageIO.write(mazeImage, "png", new File(path));
+			ImageIO.write(mazeImage, "png", fileToSaveAs);
 		} catch(Exception e) {
 			e.printStackTrace();
 		}
@@ -308,7 +305,7 @@ public class mazeSolver implements Runnable {
 		renderMaze();
 		
 		System.out.println("Saving");
-		saveFile(filenameForSaving);
+		saveFile(this.outputFile);
 		System.out.println("Saved");
 		
 		try {
