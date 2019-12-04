@@ -5,4 +5,4 @@
  * @author djpip
  *
  */
-package danny.mazes;
+package dannypiper.mazesolver;
