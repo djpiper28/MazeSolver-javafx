@@ -10,6 +10,8 @@ import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.control.Button;
 import javafx.scene.control.Labeled;
+import javafx.scene.control.ScrollPane;
+import javafx.scene.control.ScrollPane.ScrollBarPolicy;
 import javafx.scene.layout.Background;
 import javafx.scene.layout.BackgroundFill;
 import javafx.scene.layout.CornerRadii;
@@ -49,7 +51,31 @@ public class guiJavaFX extends Application {
 	private final static double greyConstantAccent = 0.3d;
 
 	public static void main(String args[]) {
-		launch(args);
+		boolean test = false;
+		String path = "";
+		for (String arg : args) {
+			if (arg.contains("test")) {
+				test = true;
+			} else if (arg.contains("filepath-")) {
+				path = arg.split("filepath-")[1];
+			} else if (arg.contains("help") || arg.contains("h")) {
+				System.out.println("Help for mazeSolver:\n" + "	- Parse 'h' or 'help' to see this help page\n"
+						+ "	- Parse 'test' to run a test\n"
+						+ "		- (tests all images in the current path by default)\n"
+						+ "	- Parse 'filepath-<path>' to make the test run on the specified path\n"
+						+ "Example of how to run a test in the testFolder\n"
+						+ "	java -jar <jarFileName>.jar -Xms1G -Xss50M test filepath-testFolder\n"
+						+ "Running the program with no parameters will show the GUI");
+			}
+
+		}
+
+		if (test) {
+			testMazeSolver testObject = new testMazeSolver(path);
+			testObject.test();
+		} else {
+			launch(args);
+		}
 	}
 
 	private void darkModeAccent(Region... nodes) {
@@ -153,7 +179,15 @@ public class guiJavaFX extends Application {
 	private void solveGUI() {
 		canvas = new Canvas(1920, 1050);
 
-		renderScene = new Scene(new Group(canvas), 1920, 1050);
+		ScrollPane scrollPane = new ScrollPane();
+
+		scrollPane = new ScrollPane();
+		scrollPane.setContent(canvas);
+
+		scrollPane.setVbarPolicy(ScrollBarPolicy.AS_NEEDED);
+		scrollPane.setHbarPolicy(ScrollBarPolicy.AS_NEEDED);
+
+		renderScene = new Scene(new Group(scrollPane), 1920, 1050);
 		stage.setScene(renderScene);
 		stage.setResizable(false);
 		stage.setX(0);

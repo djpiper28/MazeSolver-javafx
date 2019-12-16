@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<project default="create_run_jar" name="Create Runnable Jar for Project Maze Solver">
+    <!--this file was created by Eclipse Runnable JAR Export Wizard-->
+    <!--ANT 1.7 is required                                        -->
+    <!--define folder properties-->
+    <property name="dir.buildfile" value="."/>
+    <property name="dir.workspace" value="E:/"/>
+    <property name="dir.jarfile" value="${dir.workspace}"/>
+    <target name="create_run_jar">
+        <jar destfile="E:/mazeSolverNew.jar" filesetmanifest="mergewithoutmain">
+            <manifest>
+                <attribute name="Main-Class" value="dannypiper.mazesolver.guiJavaFX"/>
+                <attribute name="Class-Path" value="."/>
+            </manifest>
+            <fileset dir="${dir.buildfile}/target/classes"/>
+            <zipfileset excludes="META-INF/*.SF" src="E:/javafx/sdk/lib/javafx.base.jar"/>
+            <zipfileset excludes="META-INF/*.SF" src="E:/javafx/sdk/lib/javafx.controls.jar"/>
+            <zipfileset excludes="META-INF/*.SF" src="E:/javafx/sdk/lib/javafx.fxml.jar"/>
+            <zipfileset excludes="META-INF/*.SF" src="E:/javafx/sdk/lib/javafx.graphics.jar"/>
+            <zipfileset excludes="META-INF/*.SF" src="E:/javafx/sdk/lib/javafx.media.jar"/>
+            <zipfileset excludes="META-INF/*.SF" src="E:/javafx/sdk/lib/javafx.swing.jar"/>
+            <zipfileset excludes="META-INF/*.SF" src="E:/javafx/sdk/lib/javafx.web.jar"/>
+            <zipfileset excludes="META-INF/*.SF" src="E:/javafx/sdk/lib/javafx-swt.jar"/>
+        </jar>
+    </target>
+</project>
