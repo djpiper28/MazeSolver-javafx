@@ -1,6 +1,10 @@
 package dannypiper.mazesolver;
 
+import java.awt.image.BufferedImage;
 import java.io.File;
+import java.io.IOException;
+
+import javax.imageio.ImageIO;
 
 import javafx.application.Application;
 import javafx.geometry.Insets;
@@ -23,12 +27,16 @@ import javafx.scene.text.FontPosture;
 import javafx.scene.text.FontWeight;
 import javafx.scene.text.Text;
 import javafx.stage.FileChooser;
+import javafx.stage.Screen;
 import javafx.stage.Stage;
 
 public class guiJavaFX extends Application {
 
 	private final static String font = "Lucida Console";
 	public final static String version = Messages.getString("Gui.version"); //$NON-NLS-1$ \n" +
+
+	public static int XMAX = 1920;
+	public static int YMAX = 1000;
 
 	private static File imageFile;
 	private static File outputFile;
@@ -177,7 +185,8 @@ public class guiJavaFX extends Application {
 	}
 
 	private void solveGUI() {
-		canvas = new Canvas(1920, 1050);
+
+		canvas = new Canvas(mazeSolver.imageWidth, mazeSolver.imageHeight);
 
 		ScrollPane scrollPane = new ScrollPane();
 
@@ -187,20 +196,30 @@ public class guiJavaFX extends Application {
 		scrollPane.setVbarPolicy(ScrollBarPolicy.AS_NEEDED);
 		scrollPane.setHbarPolicy(ScrollBarPolicy.AS_NEEDED);
 
-		renderScene = new Scene(new Group(scrollPane), 1920, 1050);
+		renderScene = new Scene(scrollPane, XMAX, YMAX);
 		stage.setScene(renderScene);
 		stage.setResizable(false);
 		stage.setX(0);
 		stage.setY(0);
-		stage.setFullScreen(true); // Fullscreen!
+
+		canvas.setOnMouseClicked(e -> {
+
+			if (e.getClickCount() >= 2) {
+				stage.setFullScreen(true);
+			}
+
+		});
+
+		stage.setFullScreenExitHint("ESC to exit fullscreen mode" + "\nDouble click to go fullscreen"); //$NON-NLS-1$ //$NON-NLS-2$
+		stage.setFullScreen(false);
 	}
 
 	private void solveMaze() {
 		System.out.println("Maze Loading");
 
-		solveGUI();
-
 		mazeSolver mz = new mazeSolver(outputFile, imageFile);
+
+		solveGUI();
 
 		Thread solvingThread = new Thread(mz, "Solver Main");
 		System.out.println("GUI change");
@@ -228,6 +247,13 @@ public class guiJavaFX extends Application {
 
 	@Override
 	public void start(Stage arg0) throws Exception {
+
+		// Get primary screen and adjust canvas size for it.
+		if (Screen.getPrimary() != null) {
+			System.out.println(Screen.getPrimary().getBounds());
+			XMAX = (int) Screen.getPrimary().getBounds().getWidth();
+			YMAX = (int) Screen.getPrimary().getBounds().getHeight();
+		}
 
 		initLabels();
 		initButtons();
