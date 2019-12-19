@@ -11,6 +11,7 @@ import javafx.scene.image.ImageView;
 public class mazeSolver implements Runnable {
 
 	public static BufferedImage mazeImage = null;
+	public static boolean test;
 
 	public static int imageHeight;
 	public static int imageWidth;
@@ -36,6 +37,7 @@ public class mazeSolver implements Runnable {
 
 	public mazeSolver(File outputFile, File image) {
 		loadImage(image);
+		test = false;
 		mazeSolver.outputFile = outputFile;
 	}
 
@@ -72,7 +74,7 @@ public class mazeSolver implements Runnable {
 		} catch (IOException e) {
 			System.out.println("Error with file.");
 			e.printStackTrace();
-			System.exit(1);
+			System.exit(13);
 		}
 		// init
 		imageHeight = mazeImage.getHeight();
@@ -214,7 +216,11 @@ public class mazeSolver implements Runnable {
 	@Override
 	public void run() {
 		mazeImage.setAccelerationPriority(1);
-		renderObject = new renderer();
+		if (test) {
+			renderObject = new renderless();
+		} else {
+			renderObject = new renderer();
+		}
 		renderObject.scale = imageRenderScale;
 		renderObject.width = imageWidth;
 		renderObject.height = imageHeight;
@@ -306,8 +312,10 @@ public class mazeSolver implements Runnable {
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}
-		// Exit as we are done!
-		System.exit(0);
+		if (!test) {
+			// Exit as we are done!
+			System.exit(0);
+		}
 	}
 
 	private void saveFile(File fileToSaveAs) {

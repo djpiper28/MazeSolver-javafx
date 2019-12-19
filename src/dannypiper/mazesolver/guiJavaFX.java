@@ -1,14 +1,9 @@
 package dannypiper.mazesolver;
 
-import java.awt.image.BufferedImage;
 import java.io.File;
-import java.io.IOException;
-
-import javax.imageio.ImageIO;
 
 import javafx.application.Application;
 import javafx.geometry.Insets;
-import javafx.scene.Group;
 import javafx.scene.Scene;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
@@ -185,7 +180,6 @@ public class guiJavaFX extends Application {
 	}
 
 	private void solveGUI() {
-
 		canvas = new Canvas(mazeSolver.imageWidth, mazeSolver.imageHeight);
 
 		ScrollPane scrollPane = new ScrollPane();
@@ -198,7 +192,6 @@ public class guiJavaFX extends Application {
 
 		renderScene = new Scene(scrollPane, XMAX, YMAX);
 		stage.setScene(renderScene);
-		stage.setResizable(false);
 		stage.setX(0);
 		stage.setY(0);
 
@@ -252,7 +245,7 @@ public class guiJavaFX extends Application {
 		if (Screen.getPrimary() != null) {
 			System.out.println(Screen.getPrimary().getBounds());
 			XMAX = (int) Screen.getPrimary().getBounds().getWidth();
-			YMAX = (int) Screen.getPrimary().getBounds().getHeight();
+			YMAX = (int) Screen.getPrimary().getBounds().getHeight() - 40;
 		}
 
 		initLabels();
