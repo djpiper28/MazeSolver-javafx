@@ -1,4 +1,4 @@
-package dannypiper.mazesolver;
+package dannypiper.mazesolver.imageSolve;
 
 public class solver implements Runnable {
 	public int YMin;

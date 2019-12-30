@@ -13,5 +13,7 @@ module mazeSolver {
 	requires javafx.controls;
 	requires javafx.swing;
 
+	exports dannypiper.mazesolver.graphSolve;
 	exports dannypiper.mazesolver;
+	exports dannypiper.mazesolver.imageSolve;
 }

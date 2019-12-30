@@ -1,4 +1,4 @@
-package dannypiper.mazesolver;
+package dannypiper.mazesolver.imageSolve;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -36,9 +36,11 @@ public class testMazeSolver {
 		return path;
 	}
 
-	//Is recursively getting all subFolders and adding searching them. Files are added to the stack and are assumed to be image files (this is for testing so I can assume that)
+	// Is recursively getting all subFolders and adding searching them. Files are
+	// added to the stack and are assumed to be image files (this is for testing so
+	// I can assume that)
 	public void listFilesForFolder(final File folder) {
-		System.out.println("Scanning "+folder.getAbsolutePath());
+		System.out.println("Scanning " + folder.getAbsolutePath());
 		for (final File fileEntry : folder.listFiles()) {
 			if (fileEntry.isDirectory()) {
 				listFilesForFolder(fileEntry);
@@ -46,7 +48,7 @@ public class testMazeSolver {
 				files.add(fileEntry);
 			}
 		}
-		
+
 	}
 
 	public void setPath(String path) {

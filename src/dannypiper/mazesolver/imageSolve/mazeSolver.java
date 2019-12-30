@@ -1,4 +1,4 @@
-package dannypiper.mazesolver;
+package dannypiper.mazesolver.imageSolve;
 
 import java.awt.image.BufferedImage;
 import java.io.File;
@@ -6,6 +6,8 @@ import java.io.IOException;
 
 import javax.imageio.ImageIO;
 
+import dannypiper.mazesolver.renderer;
+import dannypiper.mazesolver.renderless;
 import javafx.scene.image.ImageView;
 
 public class mazeSolver implements Runnable {

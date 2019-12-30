@@ -2,18 +2,24 @@ package dannypiper.mazesolver;
 
 import java.io.File;
 
+import dannypiper.mazesolver.imageSolve.mazeSolver;
+import dannypiper.mazesolver.imageSolve.testMazeSolver;
 import javafx.application.Application;
 import javafx.geometry.Insets;
+import javafx.scene.Group;
 import javafx.scene.Scene;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.control.Button;
 import javafx.scene.control.Labeled;
+import javafx.scene.control.RadioButton;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.control.ScrollPane.ScrollBarPolicy;
+import javafx.scene.control.ToggleGroup;
 import javafx.scene.layout.Background;
 import javafx.scene.layout.BackgroundFill;
 import javafx.scene.layout.CornerRadii;
+import javafx.scene.layout.HBox;
 import javafx.scene.layout.Region;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
@@ -50,8 +56,73 @@ public class guiJavaFX extends Application {
 	private static Button selectImageToSaveAsbutton;
 	private static Button solveButton;
 
+	// Solve Type
+	private static RadioButton imageSolve;
+	private static RadioButton graphSolve;
+	private static ToggleGroup solveTypeGroup;
+	private static HBox typeSelectionHBox;
+
+	private static RadioButton breadthFirst;
+	private static RadioButton depthFirst;
+	private static RadioButton dijkstras;
+	private static ToggleGroup graphGroup;
+	private static HBox graphSolveTypeHBox;
+
+	private static RadioButton deadEndFilling;
+	private static ToggleGroup imageGroup;
+	private static HBox imageSolveTypeHBox;
+
 	private final static double greyConstant = 0.20d;
 	private final static double greyConstantAccent = 0.3d;
+
+	private static void updateRadioButtons() {
+		if(imageSolve.isSelected()) {
+			imageSolveTypeHBox.setVisible(true);
+			graphSolveTypeHBox.setVisible(false);
+		} else {
+			imageSolveTypeHBox.setVisible(false);
+			graphSolveTypeHBox.setVisible(true);
+		}
+	}
+	
+	private static void initRadioButtons() {
+		solveTypeGroup = new ToggleGroup();
+		imageSolve = new RadioButton("Image Solve ");
+		imageSolve.setToggleGroup(solveTypeGroup);
+		imageSolve.setOnMouseClicked(T -> {
+			updateRadioButtons();
+		});
+		
+		graphSolve = new RadioButton("Graph Solve ");
+		graphSolve.setToggleGroup(solveTypeGroup);
+		graphSolve.setOnMouseClicked(T -> {
+			updateRadioButtons();
+		});
+		
+		imageSolve.setSelected(true);
+		typeSelectionHBox = new HBox(imageSolve, graphSolve);
+		typeSelectionHBox.setPadding(new Insets(5));
+
+		graphGroup = new ToggleGroup();
+		breadthFirst = new RadioButton("Breadth First ");
+		breadthFirst.setToggleGroup(graphGroup);
+		breadthFirst.setSelected(true);
+		depthFirst = new RadioButton("Breadth First ");
+		depthFirst.setToggleGroup(graphGroup);	
+		dijkstras = new RadioButton("Dijkstras Algorithm ");
+		dijkstras.setToggleGroup(graphGroup);
+		
+		graphSolveTypeHBox = new HBox(breadthFirst, depthFirst, dijkstras);
+		graphSolveTypeHBox.setVisible(false);
+		graphSolveTypeHBox.setPadding(new Insets(5));
+
+		imageGroup = new ToggleGroup();
+		deadEndFilling = new RadioButton("Dead End Filling ");
+		deadEndFilling.setSelected(true);
+		deadEndFilling.setToggleGroup(imageGroup);
+		imageSolveTypeHBox = new HBox(deadEndFilling);
+		imageSolveTypeHBox.setPadding(new Insets(5));
+	}
 
 	public static void main(String args[]) {
 		boolean test = false;
@@ -250,21 +321,23 @@ public class guiJavaFX extends Application {
 
 		initLabels();
 		initButtons();
+		initRadioButtons();
 
 		vBox = new VBox(selectImageToOpenButton, fileForOpeninglabel, selectImageToSaveAsbutton, fileForSavinglabel,
-				solveButton);
+				typeSelectionHBox, graphSolveTypeHBox, imageSolveTypeHBox, solveButton);
 
 		vBox.setPadding(new Insets(20));
 		vBox.setSpacing(5);
 
-		darkModeify(vBox);
+		darkModeify(vBox, typeSelectionHBox, graphSolveTypeHBox, imageSolveTypeHBox, imageSolve, graphSolve,
+				breadthFirst, depthFirst, dijkstras, deadEndFilling);
 
 		darkModeAccent(selectImageToSaveAsbutton, selectImageToOpenButton, solveButton);
 
 		darkModeify(fileForOpeninglabel, fileForSavinglabel);
 
 		// Creating a scene object
-		inputScene = new Scene(vBox, 300, 200);
+		inputScene = new Scene(vBox, 450, 270);
 
 		stage = arg0;
 		// Setting title to the Stage
