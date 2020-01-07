@@ -10,4 +10,9 @@ public class Arc {
 
 		assert (startingNode > 0 || endingNode > 0);
 	}
+
+	@Override
+	public String toString() {
+		return "Arc [startingNode=" + startingNode + ", endingNode=" + endingNode + "]";
+	}
 }

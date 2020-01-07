@@ -3,6 +3,7 @@ package dannypiper.mazesolver.graphSolve;
 import java.awt.image.BufferedImage;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Queue;
 
 public class ImageToGraph {
 
@@ -47,7 +48,7 @@ public class ImageToGraph {
 					entrance = graphWidth - 1 + graphWidth * (y - 1) / 2;
 					exitOrEntrance = true;
 				} else {
-					exit = graphWidth  - 1 + graphWidth * (y - 1) / 2;
+					exit = graphWidth - 1 + graphWidth * (y - 1) / 2;
 				}
 			}
 		}
@@ -66,10 +67,10 @@ public class ImageToGraph {
 			// y = max, x
 			if (image.getRGB(x, image.getHeight() - 1) == white) {
 				if (!exitOrEntrance) {
-					entrance = (x - 1) / 2 + graphHeight * graphWidth;
+					entrance = (x - 1) / 2 + (graphHeight - 1) * graphWidth;
 					exitOrEntrance = true;
 				} else {
-					exit = (x - 1) / 2 + graphHeight * graphWidth;
+					exit = (x - 1) / 2 + (graphHeight - 1) * graphWidth;
 				}
 			}
 		}
