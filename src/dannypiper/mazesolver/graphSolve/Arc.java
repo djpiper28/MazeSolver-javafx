@@ -7,5 +7,7 @@ public class Arc {
 	public Arc(final int startingNode, final int endingNode) {
 		this.startingNode = startingNode;
 		this.endingNode = endingNode;
+
+		assert (startingNode > 0 || endingNode > 0);
 	}
 }

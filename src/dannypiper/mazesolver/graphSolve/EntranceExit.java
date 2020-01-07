@@ -2,28 +2,28 @@ package dannypiper.mazesolver.graphSolve;
 
 public class EntranceExit {
 
-	private Arc exit;
-	private Arc entrance;
+	private int exitNode;
+	private int entranceNode;
 
-	public EntranceExit(Arc entrance, Arc exit) {
+	public EntranceExit(int entrance, int exit) {
 		setEntrance(entrance);
 		setExit(exit);
 	}
 
-	public Arc getEntrance() {
-		return entrance;
+	public int getEntrance() {
+		return entranceNode;
 	}
 
-	public Arc getExit() {
-		return exit;
+	public int getExit() {
+		return exitNode;
 	}
 
-	public void setEntrance(Arc entrance) {
-		this.entrance = entrance;
+	public void setEntrance(int entrance) {
+		this.entranceNode = entrance;
 	}
 
-	public void setExit(Arc exit) {
-		this.exit = exit;
+	public void setExit(int exit) {
+		this.exitNode = exit;
 	}
 
 }

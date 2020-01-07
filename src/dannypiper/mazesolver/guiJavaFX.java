@@ -1,17 +1,21 @@
 package dannypiper.mazesolver;
 
 import java.io.File;
+import java.io.IOException;
 
+import dannypiper.mazesolver.graphSolve.DimensionError;
+import dannypiper.mazesolver.graphSolve.GraphSolve;
+import dannypiper.mazesolver.graphSolve.SolveTypeEnum;
 import dannypiper.mazesolver.imageSolve.mazeSolver;
 import dannypiper.mazesolver.imageSolve.testMazeSolver;
 import javafx.application.Application;
 import javafx.geometry.Insets;
-import javafx.scene.Group;
 import javafx.scene.Scene;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.control.Button;
 import javafx.scene.control.Labeled;
+import javafx.scene.control.ProgressIndicator;
 import javafx.scene.control.RadioButton;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.control.ScrollPane.ScrollBarPolicy;
@@ -33,28 +37,42 @@ import javafx.stage.Stage;
 
 public class guiJavaFX extends Application {
 
-	private final static String font = "Lucida Console";
-	public final static String version = Messages.getString("Gui.version"); //$NON-NLS-1$ \n" +
+	// Constants
+	private final static String FONT = "Lucida Console";
+	public final static String VERSION = Messages.getString("Gui.version"); //$NON-NLS-1$ \n" +
 
+	private final static double greyConstant = 0.20d;
+	private final static double greyConstantAccent = 0.3d;
+
+	// Screen properties
 	public static int XMAX = 1920;
-	public static int YMAX = 1000;
+	public static int YMAX = 1080;
 
+	// Files
 	private static File imageFile;
 	private static File outputFile;
-	private static Canvas canvas;
 
+	// Initial scene
 	private static VBox vBox;
 	private static Scene inputScene;
-	private static Scene renderScene;
 	private static Stage stage;
-	@SuppressWarnings("exports")
-	public static GraphicsContext graphicsContext;
-
 	private static Text fileForOpeninglabel;
 	private static Text fileForSavinglabel;
 	private static Button selectImageToOpenButton;
 	private static Button selectImageToSaveAsbutton;
 	private static Button solveButton;
+
+	// Solve GUI
+	private static Scene solveScene;
+
+	// Image Solve
+	public static GraphicsContext graphicsContext;
+	private static Canvas canvas;
+
+	// Graph Solve
+	private static Text solvingStatus;
+	private static ProgressIndicator progressIndicator;
+	private static VBox graphSolveVbox;
 
 	// Solve Type
 	private static RadioButton imageSolve;
@@ -62,7 +80,6 @@ public class guiJavaFX extends Application {
 	private static ToggleGroup solveTypeGroup;
 	private static HBox typeSelectionHBox;
 
-	private static RadioButton breadthFirst;
 	private static RadioButton depthFirst;
 	private static RadioButton dijkstras;
 	private static ToggleGroup graphGroup;
@@ -72,19 +89,6 @@ public class guiJavaFX extends Application {
 	private static ToggleGroup imageGroup;
 	private static HBox imageSolveTypeHBox;
 
-	private final static double greyConstant = 0.20d;
-	private final static double greyConstantAccent = 0.3d;
-
-	private static void updateRadioButtons() {
-		if(imageSolve.isSelected()) {
-			imageSolveTypeHBox.setVisible(true);
-			graphSolveTypeHBox.setVisible(false);
-		} else {
-			imageSolveTypeHBox.setVisible(false);
-			graphSolveTypeHBox.setVisible(true);
-		}
-	}
-	
 	private static void initRadioButtons() {
 		solveTypeGroup = new ToggleGroup();
 		imageSolve = new RadioButton("Image Solve ");
@@ -92,27 +96,25 @@ public class guiJavaFX extends Application {
 		imageSolve.setOnMouseClicked(T -> {
 			updateRadioButtons();
 		});
-		
+
 		graphSolve = new RadioButton("Graph Solve ");
 		graphSolve.setToggleGroup(solveTypeGroup);
 		graphSolve.setOnMouseClicked(T -> {
 			updateRadioButtons();
 		});
-		
+
 		imageSolve.setSelected(true);
 		typeSelectionHBox = new HBox(imageSolve, graphSolve);
 		typeSelectionHBox.setPadding(new Insets(5));
 
 		graphGroup = new ToggleGroup();
-		breadthFirst = new RadioButton("Breadth First ");
-		breadthFirst.setToggleGroup(graphGroup);
-		breadthFirst.setSelected(true);
-		depthFirst = new RadioButton("Breadth First ");
-		depthFirst.setToggleGroup(graphGroup);	
+		depthFirst = new RadioButton("Depth First ");
+		depthFirst.setToggleGroup(graphGroup);
+		depthFirst.setSelected(true);
 		dijkstras = new RadioButton("Dijkstras Algorithm ");
 		dijkstras.setToggleGroup(graphGroup);
-		
-		graphSolveTypeHBox = new HBox(breadthFirst, depthFirst, dijkstras);
+
+		graphSolveTypeHBox = new HBox(depthFirst, dijkstras);
 		graphSolveTypeHBox.setVisible(false);
 		graphSolveTypeHBox.setPadding(new Insets(5));
 
@@ -134,12 +136,12 @@ public class guiJavaFX extends Application {
 				path = arg.split("filepath-")[1];
 			} else if (arg.contains("help") || arg.contains("h")) {
 				System.out.println("Help for mazeSolver:\n" + "	- Parse 'h' or 'help' to see this help page\n"
-						+ "	- Parse 'test' to run a test\n"
+						+ "	- Use 'test' to run a test\n"
 						+ "		- (tests all images in the current path by default)\n"
-						+ "	- Parse 'filepath-<path>' to make the test run on the specified path\n"
+						+ "	- Use 'filepath-<path>' to make the test run on the specified path\n"
 						+ "Example of how to run a test in the testFolder\n"
-						+ "	java -jar <jarFileName>.jar -Xms1G -Xss50M test filepath-testFolder\n"
-						+ "Running the program with no parameters will show the GUI");
+						+ "	`java -jar <jarFileName>.jar -Xms1G -Xss50M test filepath-testFolder`\n"
+						+ "Running the program with no parameters will show the GUI.");
 			}
 
 		}
@@ -149,6 +151,16 @@ public class guiJavaFX extends Application {
 			testObject.test();
 		} else {
 			launch(args);
+		}
+	}
+
+	private static void updateRadioButtons() {
+		if (imageSolve.isSelected()) {
+			imageSolveTypeHBox.setVisible(true);
+			graphSolveTypeHBox.setVisible(false);
+		} else {
+			imageSolveTypeHBox.setVisible(false);
+			graphSolveTypeHBox.setVisible(true);
 		}
 	}
 
@@ -189,9 +201,9 @@ public class guiJavaFX extends Application {
 		selectImageToSaveAsbutton = new Button("Save output image as.");
 		solveButton = new Button("Please select an image.");
 
-		selectImageToOpenButton.setFont(Font.font(font, FontWeight.BOLD, FontPosture.REGULAR, 14));
-		solveButton.setFont(Font.font(font, FontWeight.BOLD, FontPosture.REGULAR, 14));
-		selectImageToSaveAsbutton.setFont(Font.font(font, FontWeight.BOLD, FontPosture.REGULAR, 14));
+		selectImageToOpenButton.setFont(Font.font(FONT, FontWeight.BOLD, FontPosture.REGULAR, 14));
+		solveButton.setFont(Font.font(FONT, FontWeight.BOLD, FontPosture.REGULAR, 14));
+		selectImageToSaveAsbutton.setFont(Font.font(FONT, FontWeight.BOLD, FontPosture.REGULAR, 14));
 
 		solveButton.setOnAction(e -> {
 			if (imageFile != null) {
@@ -210,10 +222,72 @@ public class guiJavaFX extends Application {
 
 	private void initLabels() {
 		fileForOpeninglabel = new Text("Please select a maze to solve.");
-		fileForOpeninglabel.setFont(Font.font(font, FontWeight.BOLD, FontPosture.REGULAR, 14));
+		fileForOpeninglabel.setFont(Font.font(FONT, FontWeight.BOLD, FontPosture.REGULAR, 14));
 
 		fileForSavinglabel = new Text("Please select a file to save as.");
-		fileForSavinglabel.setFont(Font.font(font, FontWeight.BOLD, FontPosture.REGULAR, 14));
+		fileForSavinglabel.setFont(Font.font(FONT, FontWeight.BOLD, FontPosture.REGULAR, 14));
+	}
+
+	private void initSolveGUIForGraphSolve() {
+		solvingStatus = new Text("Maze is solving, please wait...");
+		solvingStatus.setFont(Font.font(FONT, FontWeight.BOLD, FontPosture.REGULAR, 14));
+
+		progressIndicator = new ProgressIndicator();
+		// No progress is passed into the constructor so it shows a spinning thing
+
+		// Set scene up
+		graphSolveVbox = new VBox(solvingStatus, progressIndicator);
+		graphSolveVbox.setPadding(new Insets(30));
+		graphSolveVbox.setSpacing(20d);
+
+		// Dark mode
+		darkModeify(graphSolveVbox, progressIndicator);
+		darkModeify(solvingStatus);
+
+		solveScene = new Scene(graphSolveVbox);
+		
+		stage.setScene(solveScene);
+		stage.setResizable(false);
+	}
+
+	private void initSolveGUIForImageSolve() {
+		canvas = new Canvas(mazeSolver.imageWidth, mazeSolver.imageHeight);
+
+		ScrollPane scrollPane = new ScrollPane();
+
+		scrollPane = new ScrollPane();
+		scrollPane.setContent(canvas);
+
+		scrollPane.setVbarPolicy(ScrollBarPolicy.AS_NEEDED);
+		scrollPane.setHbarPolicy(ScrollBarPolicy.AS_NEEDED);
+
+		int a = mazeSolver.imageWidth;
+		int b = mazeSolver.imageHeight;
+		if (mazeSolver.imageWidth > XMAX) {
+			a = XMAX;
+		}
+		if (mazeSolver.imageHeight > YMAX) {
+			b = YMAX;
+		}
+
+		// Set the scene up
+		solveScene = new Scene(scrollPane, a, b);
+		stage.setScene(solveScene);
+		stage.setX(0);
+		stage.setY(0);
+
+		// Add click event to canvas
+		canvas.setOnMouseClicked(e -> {
+
+			if (e.getClickCount() >= 2) {
+				stage.setFullScreen(true);
+			}
+
+		});
+
+		// Set fullscreen hints
+		stage.setFullScreenExitHint("ESC to exit fullscreen mode" + "\nDouble click to go fullscreen"); //$NON-NLS-2$ 
+		stage.setFullScreen(false);
 	}
 
 	private void openFileChooser() {
@@ -225,7 +299,7 @@ public class guiJavaFX extends Application {
 			imageFile = selectedFile;
 			if (imageFile != null) {
 				solveButton.setText("Solve the maze.");
-				fileForOpeninglabel.setText("Solving; " + imageFile.getName());
+				fileForOpeninglabel.setText("Solving " + imageFile.getName());
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -240,7 +314,8 @@ public class guiJavaFX extends Application {
 		try {
 			File selectedFile = fileChooser.showSaveDialog(stage);
 			if (selectedFile != null) {
-				outputFile = selectedFile; // Keeps old file if dialog is closed
+				outputFile = selectedFile;
+				// Keeps old file if dialog is closed
 			}
 			if (outputFile != null) {
 				fileForSavinglabel.setText("Selected '" + outputFile.getName() + "'");
@@ -250,63 +325,58 @@ public class guiJavaFX extends Application {
 		}
 	}
 
-	private void solveGUI() {
-		canvas = new Canvas(mazeSolver.imageWidth, mazeSolver.imageHeight);
-
-		ScrollPane scrollPane = new ScrollPane();
-
-		scrollPane = new ScrollPane();
-		scrollPane.setContent(canvas);
-
-		scrollPane.setVbarPolicy(ScrollBarPolicy.AS_NEEDED);
-		scrollPane.setHbarPolicy(ScrollBarPolicy.AS_NEEDED);
-
-		renderScene = new Scene(scrollPane, XMAX, YMAX);
-		stage.setScene(renderScene);
-		stage.setX(0);
-		stage.setY(0);
-
-		canvas.setOnMouseClicked(e -> {
-
-			if (e.getClickCount() >= 2) {
-				stage.setFullScreen(true);
-			}
-
-		});
-
-		stage.setFullScreenExitHint("ESC to exit fullscreen mode" + "\nDouble click to go fullscreen"); //$NON-NLS-1$ //$NON-NLS-2$
-		stage.setFullScreen(false);
-	}
-
 	private void solveMaze() {
 		System.out.println("Maze Loading");
+		Thread solvingThread;
 
-		mazeSolver mz = new mazeSolver(outputFile, imageFile);
+		if (guiJavaFX.imageSolve.isSelected()) {
+			mazeSolver mz = new mazeSolver(outputFile, imageFile);
 
-		solveGUI();
+			initSolveGUIForImageSolve();
 
-		Thread solvingThread = new Thread(mz, "Solver Main");
-		System.out.println("GUI change");
+			solvingThread = new Thread(mz, "MazeSovler : Image solver.");
+			System.out.println("Image solve: dead end filling" + "\nGUI change to solve GUI (for image solve).");
 
-		float scalex = 1920 / mazeSolver.imageWidth;
-		float scaley = 1050 / mazeSolver.imageHeight;
+			float scalex = 1920 / mazeSolver.imageWidth;
+			float scaley = 1050 / mazeSolver.imageHeight;
 
-		float scale = 1;
-		if (scalex < 1 || scaley < 1) {
-			scale = 1f;
-		} else if (scalex <= scaley) {
-			scale = scalex;
+			float scale = 1;
+			if (scalex < 1 || scaley < 1) {
+				scale = 1f;
+			} else if (scalex <= scaley) {
+				scale = scalex;
+			} else {
+				scale = scaley;
+			}
+
+			mazeSolver.imageRenderScale = scale;
+
+			System.out.println("Maze Solving, output scale is " + scale);
+
+			graphicsContext = canvas.getGraphicsContext2D();
+
+			solvingThread.start();
 		} else {
-			scale = scaley;
+			SolveTypeEnum solveType = SolveTypeEnum.DIJKSTRAS;
+			if (guiJavaFX.depthFirst.isSelected()) {
+				solveType = SolveTypeEnum.DEPTH_FIRST;
+			}
+
+			System.out.println("Graph solve: " + solveType.toString() + "\nGUI change to solve GUI (for graph solve).");
+
+			initSolveGUIForGraphSolve();
+
+			try {
+				GraphSolve graphSolver = new GraphSolve(solveType, imageFile, outputFile);
+				solvingThread = new Thread(graphSolver, "MazeSovler : Graph solver - " + solveType.toString() + ".");
+
+				solvingThread.run();
+			} catch (IOException | DimensionError e) {
+				e.printStackTrace();
+				System.exit(13);
+			}
 		}
 
-		mazeSolver.imageRenderScale = scale;
-
-		System.out.println("Maze Solving, output scale is " + scale);
-
-		graphicsContext = canvas.getGraphicsContext2D();
-
-		solvingThread.start();
 	}
 
 	@Override
@@ -323,21 +393,24 @@ public class guiJavaFX extends Application {
 		initButtons();
 		initRadioButtons();
 
+		// Put content into a container
 		vBox = new VBox(selectImageToOpenButton, fileForOpeninglabel, selectImageToSaveAsbutton, fileForSavinglabel,
 				typeSelectionHBox, graphSolveTypeHBox, imageSolveTypeHBox, solveButton);
 
+		// Setup padding and spacing in the container
 		vBox.setPadding(new Insets(20));
 		vBox.setSpacing(5);
 
-		darkModeify(vBox, typeSelectionHBox, graphSolveTypeHBox, imageSolveTypeHBox, imageSolve, graphSolve,
-				breadthFirst, depthFirst, dijkstras, deadEndFilling);
+		// Apply darkmode to the container and contents
+		darkModeify(vBox, typeSelectionHBox, graphSolveTypeHBox, imageSolveTypeHBox, imageSolve, graphSolve, depthFirst,
+				dijkstras, deadEndFilling);
 
 		darkModeAccent(selectImageToSaveAsbutton, selectImageToOpenButton, solveButton);
 
 		darkModeify(fileForOpeninglabel, fileForSavinglabel);
 
-		// Creating a scene object
-		inputScene = new Scene(vBox, 450, 270);
+		// Creating a scene object with the container
+		inputScene = new Scene(vBox);
 
 		stage = arg0;
 		// Setting title to the Stage
@@ -346,7 +419,7 @@ public class guiJavaFX extends Application {
 			memStatus += "Low RAM! ";
 		}
 		memStatus += Runtime.getRuntime().totalMemory() / 1024 / 1024 / 1024 + "GB of RAM";
-		stage.setTitle("Maze Solver v" + version + " - " + memStatus + ". Built on: " + GetBuildDate.GetBuildDate());
+		stage.setTitle("Maze Solver v" + VERSION + " - " + memStatus + ". Built on: " + GetBuildDate.GetBuildDate());
 
 		// Adding scene to the stage
 		stage.setScene(inputScene);
@@ -356,6 +429,9 @@ public class guiJavaFX extends Application {
 		stage.setOnCloseRequest(e -> {
 			System.exit(1); // User closed program
 		});
+		
+		stage.setMinHeight(stage.getHeight());
+		stage.setMinWidth(stage.getWidth());
 	}
 
 }
