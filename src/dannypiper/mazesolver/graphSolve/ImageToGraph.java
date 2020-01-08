@@ -3,7 +3,6 @@ package dannypiper.mazesolver.graphSolve;
 import java.awt.image.BufferedImage;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Queue;
 
 public class ImageToGraph {
 
@@ -98,25 +97,21 @@ public class ImageToGraph {
 				// Scan for paths from each node
 				if (image.getRGB(x - 1, y) == white && x > 1) {
 					IndexedAdjList[(x - 1) / 2 + graphWidth * (y - 1) / 2].add(
-							new Arc((x - 1) / 2 + graphWidth * (y - 1) / 2
-									, (x - 3) / 2 + graphWidth * (y - 1) / 2));
+							new Arc((x - 1) / 2 + graphWidth * (y - 1) / 2, (x - 3) / 2 + graphWidth * (y - 1) / 2));
 				}
-				if (image.getRGB(x + 1, y) == white && x < width - 2) {	
-					//-1 to be 0 bound, -1 to check it is not on the first path-filled line
+				if (image.getRGB(x + 1, y) == white && x < width - 2) {
+					// -1 to be 0 bound, -1 to check it is not on the first path-filled line so -2
 					IndexedAdjList[(x - 1) / 2 + graphWidth * (y - 1) / 2].add(
-							new Arc((x - 1) / 2 + graphWidth * (y - 1) / 2
-									, (x + 1) / 2 + graphWidth * (y - 1) / 2));
+							new Arc((x - 1) / 2 + graphWidth * (y - 1) / 2, (x + 1) / 2 + graphWidth * (y - 1) / 2));
 				}
 				if (image.getRGB(x, y - 1) == white && y > 1) {
 					IndexedAdjList[(x - 1) / 2 + graphWidth * (y - 1) / 2].add(
-							new Arc((x - 1) / 2 + graphWidth * (y - 1) / 2
-									, (x - 1) / 2 + graphWidth * (y - 3) / 2));
+							new Arc((x - 1) / 2 + graphWidth * (y - 1) / 2, (x - 1) / 2 + graphWidth * (y - 3) / 2));
 				}
 				if (image.getRGB(x, y + 1) == white && y < height - 2) {
-					//-1 to be 0 bound, -1 to check it is not on the last path-filled line
+					// -1 to be 0 bound, -1 to check it is not on the last path-filled line so - 2
 					IndexedAdjList[(x - 1) / 2 + graphWidth * (y - 1) / 2].add(
-							new Arc((x - 1) / 2 + graphWidth * (y - 1) / 2
-									, (x - 1) / 2 + graphWidth * (y + 1) / 2));
+							new Arc((x - 1) / 2 + graphWidth * (y - 1) / 2, (x - 1) / 2 + graphWidth * (y + 1) / 2));
 				}
 			}
 		}

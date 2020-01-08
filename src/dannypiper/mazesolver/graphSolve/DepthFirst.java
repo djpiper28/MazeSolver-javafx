@@ -1,7 +1,6 @@
 package dannypiper.mazesolver.graphSolve;
 
 import java.util.List;
-import java.util.Queue;
 
 public class DepthFirst extends SolveInterface {
 
@@ -16,7 +15,7 @@ public class DepthFirst extends SolveInterface {
 		for (int i = 0; i < visited.length; i++) {
 			visited[i] = false;
 		}
-		
+
 		finished = false;
 	}
 
@@ -30,14 +29,14 @@ public class DepthFirst extends SolveInterface {
 			finished = true;
 			return;
 		}
-		
-		for (Arc a : super.IndexedAdjacencyList[arc.endingNode]) {		
+
+		for (Arc a : super.IndexedAdjacencyList[arc.endingNode]) {
 			if (!visited[a.endingNode] && !finished) {
 				explore(a);
 			}
 		}
-		
-		if(finished) {
+
+		if (finished) {
 			return;
 		}
 
@@ -49,6 +48,9 @@ public class DepthFirst extends SolveInterface {
 		System.out.println("Started Depth First On Adj List of Size " + super.IndexedAdjacencyList.length);
 		explore(super.IndexedAdjacencyList[super.entranceExit.getEntrance()].get(0));
 		System.out.println("Finished Depth First, Path Length " + super.path.size());
+		if(!finished) {
+			System.out.println("No path found");
+		}
 		return super.path;
 	}
 

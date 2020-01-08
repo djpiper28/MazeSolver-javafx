@@ -103,7 +103,7 @@ public class guiJavaFX extends Application {
 			updateRadioButtons();
 		});
 		graphSolve.setSelected(true);
-		
+
 		typeSelectionHBox = new HBox(imageSolve, graphSolve);
 		typeSelectionHBox.setPadding(new Insets(5));
 
@@ -114,7 +114,7 @@ public class guiJavaFX extends Application {
 		dijkstras = new RadioButton("Dijkstras Algorithm ");
 		dijkstras.setToggleGroup(graphGroup);
 
-		graphSolveTypeHBox = new HBox(depthFirst);//, dijkstras);
+		graphSolveTypeHBox = new HBox(depthFirst);// , dijkstras);
 		graphSolveTypeHBox.setVisible(false);
 		graphSolveTypeHBox.setPadding(new Insets(5));
 
@@ -245,7 +245,7 @@ public class guiJavaFX extends Application {
 		darkModeify(solvingStatus);
 
 		solveScene = new Scene(graphSolveVbox);
-		
+
 		stage.setScene(solveScene);
 		stage.setResizable(false);
 	}
@@ -286,7 +286,7 @@ public class guiJavaFX extends Application {
 		});
 
 		// Set fullscreen hints
-		stage.setFullScreenExitHint("ESC to exit fullscreen mode" + "\nDouble click to go fullscreen"); //$NON-NLS-2$ 
+		stage.setFullScreenExitHint("ESC to exit fullscreen mode" + "\nDouble click to go fullscreen"); //$NON-NLS-2$
 		stage.setFullScreen(false);
 	}
 
@@ -429,9 +429,10 @@ public class guiJavaFX extends Application {
 		stage.setOnCloseRequest(e -> {
 			System.exit(1); // User closed program
 		});
-		
+
 		stage.setMinHeight(stage.getHeight());
 		stage.setMinWidth(stage.getWidth());
+		updateRadioButtons();
 	}
 
 }
