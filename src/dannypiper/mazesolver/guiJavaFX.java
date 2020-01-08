@@ -102,8 +102,8 @@ public class guiJavaFX extends Application {
 		graphSolve.setOnMouseClicked(T -> {
 			updateRadioButtons();
 		});
-
-		imageSolve.setSelected(true);
+		graphSolve.setSelected(true);
+		
 		typeSelectionHBox = new HBox(imageSolve, graphSolve);
 		typeSelectionHBox.setPadding(new Insets(5));
 
@@ -114,7 +114,7 @@ public class guiJavaFX extends Application {
 		dijkstras = new RadioButton("Dijkstras Algorithm ");
 		dijkstras.setToggleGroup(graphGroup);
 
-		graphSolveTypeHBox = new HBox(depthFirst, dijkstras);
+		graphSolveTypeHBox = new HBox(depthFirst);//, dijkstras);
 		graphSolveTypeHBox.setVisible(false);
 		graphSolveTypeHBox.setPadding(new Insets(5));
 

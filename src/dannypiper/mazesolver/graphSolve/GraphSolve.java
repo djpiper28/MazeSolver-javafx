@@ -73,6 +73,28 @@ public class GraphSolve implements Runnable {
 		this.timeToSolve = System.currentTimeMillis() - time;
 		return path;
 	}
+	
+	private void entranceOrExit(BufferedImage image, int adjlistIndex, int width, int height, int colour) {
+		int x = adjlistIndex % width;	// mod
+		x = x * 2 + 1;
+		// Move from graph to edge of image
+		int y = adjlistIndex / width;	// div
+		y = y * 2 + 1;
+		// Move from graph to edge of image
+		if(x == 1) {
+			x = 0;
+		} else if(x == width) {
+			x++;
+		}
+		
+		if(y == 1) {
+			y = 0;
+		} else if(x == height) {
+			y++;
+		}
+		
+		image.setRGB(x, y, colour);
+	}
 
 	public void solveMazeAndSaveImage() throws IOException {
 		// Solve maze
@@ -96,16 +118,16 @@ public class GraphSolve implements Runnable {
 
 		for (int x = 0; x < this.imageWidth; x++) {
 			for (int y = 0; y < this.imageHeight; y++) {
-				if (pathImage.getRGB(x, y) == GraphToImage.purple) {
-					this.MazeImage.setRGB(x, y, GraphToImage.purple);
-				}
+				this.MazeImage.setRGB(x, y, this.MazeImage.getRGB(x, y) - pathImage.getRGB(x, y));
 			}
 		}
-
 		System.out.println("Merged to image in " + (System.currentTimeMillis() - time) + "\nSaving image...");
 
+		// Add entrance and exit
+		entranceOrExit(this.MazeImage, entranceExit.getEntrance(), graphWidth, graphHeight, GraphToImage.pathColour);
+		entranceOrExit(this.MazeImage, entranceExit.getExit(), graphWidth, graphHeight, GraphToImage.pathColour);
+		
 		// Save image
-
 		ImageIO.write(this.MazeImage, "PNG", outputFile);
 		System.exit(0);
 	}

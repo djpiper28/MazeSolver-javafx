@@ -5,7 +5,7 @@ import java.util.List;
 
 public class GraphToImage {
 
-	public static final int purple = 0x00FF00;
+	public static final int pathColour = 0x00FF00;
 	private static final int black = 0x000000;
 	private int graphWidth, graphHeight, imageWidth, imageHeight;
 	private BufferedImage image;
@@ -30,7 +30,6 @@ public class GraphToImage {
 	}
 
 	private void drawArc(final int StartingNode, final int EndingNode) {
-
 		final int x1 = ((StartingNode % graphWidth) * 2) + 1;
 		final int y1 = ((StartingNode / graphWidth) * 2) + 1;
 
@@ -40,9 +39,9 @@ public class GraphToImage {
 		final int x3 = (x1 + x2) / 2;
 		final int y3 = (y1 + y2) / 2;
 
-		image.setRGB(x1, y1, GraphToImage.purple);
-		image.setRGB(x2, y2, GraphToImage.purple);
-		image.setRGB(x3, y3, GraphToImage.purple);
+		image.setRGB(x1, y1, GraphToImage.pathColour);
+		image.setRGB(x2, y2, GraphToImage.pathColour);
+		image.setRGB(x3, y3, GraphToImage.pathColour);
 	}
 
 	public BufferedImage getImage() {
