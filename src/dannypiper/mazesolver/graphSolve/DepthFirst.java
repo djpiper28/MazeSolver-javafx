@@ -60,7 +60,7 @@ public class DepthFirst extends SolveInterface {
 	}
 
 	@Override
-	public List<Arc> solve() {
+	public List<Arc> solve() {		
 		System.out.println("Started Depth First On Adj List of Size " + super.IndexedAdjacencyList.length);
 		explore(super.IndexedAdjacencyList[super.entranceExit.getEntrance()].get(0));
 		System.out.println("Finished Depth First, Path Length " + super.path.size());
