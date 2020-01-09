@@ -1,13 +1,26 @@
 package dannypiper.mazesolver.graphSolve;
 
+import java.io.File;
+import java.io.IOException;
 import java.util.List;
+import javax.imageio.ImageIO;
 
 public class DepthFirst extends SolveInterface {
 
 	private boolean[] visited;
 	private boolean finished;
+	private int imageWidth, imageHeight;
 
-	public DepthFirst(List<Arc>[] IndexedAdjacencyList, EntranceExit entranceExit) {
+	private void dumpPath() {
+		try {
+			ImageIO.write((new GraphToImage(imageHeight, imageWidth, super.path)).getImage(), "PNG",
+					new File("DUMP/Image" + System.currentTimeMillis() + "-" + super.path.size() + ".png"));
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
+
+	public DepthFirst(List<Arc>[] IndexedAdjacencyList, EntranceExit entranceExit, int imageWidth, int imageHeight) {
 		super(IndexedAdjacencyList, entranceExit);
 		visited = new boolean[super.IndexedAdjacencyList.length];
 
@@ -17,11 +30,14 @@ public class DepthFirst extends SolveInterface {
 		}
 
 		finished = false;
+		this.imageWidth = imageWidth;
+		this.imageHeight = imageHeight;
 	}
 
 	private void explore(Arc arc) {
 		super.path.push(arc);
 		visited[arc.startingNode] = true;
+		// dumpPath();
 
 		if (arc.endingNode == super.entranceExit.getExit()) {
 			System.out.println("Arc: " + arc.toString());
@@ -48,7 +64,8 @@ public class DepthFirst extends SolveInterface {
 		System.out.println("Started Depth First On Adj List of Size " + super.IndexedAdjacencyList.length);
 		explore(super.IndexedAdjacencyList[super.entranceExit.getEntrance()].get(0));
 		System.out.println("Finished Depth First, Path Length " + super.path.size());
-		if(!finished) {
+		// (new File("DUMP")).mkdir();
+		if (!finished) {
 			System.out.println("No path found");
 		}
 		return super.path;

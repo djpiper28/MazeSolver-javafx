@@ -251,7 +251,8 @@ public class guiJavaFX extends Application {
 	}
 
 	private void initSolveGUIForImageSolve() {
-		canvas = new Canvas(mazeSolver.imageWidth, mazeSolver.imageHeight);
+		canvas = new Canvas(mazeSolver.imageWidth * mazeSolver.imageRenderScale,
+				mazeSolver.imageHeight * mazeSolver.imageRenderScale);
 
 		ScrollPane scrollPane = new ScrollPane();
 

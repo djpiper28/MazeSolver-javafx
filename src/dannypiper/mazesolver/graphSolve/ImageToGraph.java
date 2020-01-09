@@ -1,8 +1,12 @@
 package dannypiper.mazesolver.graphSolve;
 
 import java.awt.image.BufferedImage;
+import java.io.File;
+import java.io.IOException;
 import java.util.LinkedList;
 import java.util.List;
+
+import javax.imageio.ImageIO;
 
 public class ImageToGraph {
 
@@ -87,6 +91,7 @@ public class ImageToGraph {
 		int height = image.getHeight();
 
 		int graphWidth = (width - 1) / 2;
+		int graphHeight = (height - 1) / 2;
 
 		for (int i = 0; i < IndexedAdjList.length; i++) {
 			IndexedAdjList[i] = new LinkedList<Arc>();

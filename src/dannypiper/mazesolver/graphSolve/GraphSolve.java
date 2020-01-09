@@ -43,7 +43,8 @@ public class GraphSolve implements Runnable {
 
 		switch (this.solveType) {
 		case DEPTH_FIRST:
-			this.solver = new DepthFirst(this.IndexedAdjacencyList, this.entranceExit);
+			this.solver = new DepthFirst(this.IndexedAdjacencyList, this.entranceExit, this.graphWidth,
+					this.graphHeight);
 			break;
 		case DIJKSTRAS:
 			System.out.println("NOT WORKING");
@@ -52,22 +53,23 @@ public class GraphSolve implements Runnable {
 		}
 	}
 
-	private void entranceOrExit(BufferedImage image, int adjlistIndex, int width, int height, int colour) {
-		int x = adjlistIndex % width; // mod
-		x = x * 2 + 1;
+	private void addEntranceOrExitToMaze(BufferedImage image, int adjlistIndex, int graphWidth, int graphHeight,
+			int colour) {
+		int xGraph = adjlistIndex % graphWidth; // mod
+		int x = xGraph * 2 + 1;
 		// Move from graph to edge of image
-		int y = adjlistIndex / width; // div
-		y = y * 2 + 1;
+		int yGraph = adjlistIndex / graphWidth; // div
+		int y = yGraph * 2 + 1;
 		// Move from graph to edge of image
 		if (x == 1) {
 			x = 0;
-		} else if (x == width) {
+		} else if (xGraph == graphWidth - 1) {
 			x++;
 		}
 
 		if (y == 1) {
 			y = 0;
-		} else if (x == height) {
+		} else if (yGraph == graphHeight - 1) {
 			y++;
 		}
 
@@ -124,8 +126,10 @@ public class GraphSolve implements Runnable {
 		System.out.println("Merged images in " + (System.currentTimeMillis() - time) + "\nSaving image...");
 
 		// Add entrance and exit
-		entranceOrExit(this.MazeImage, entranceExit.getEntrance(), graphWidth, graphHeight, GraphToImage.pathColour);
-		entranceOrExit(this.MazeImage, entranceExit.getExit(), graphWidth, graphHeight, GraphToImage.pathColour);
+		addEntranceOrExitToMaze(this.MazeImage, entranceExit.getEntrance(), graphWidth, graphHeight,
+				0xFFFFFF - GraphToImage.pathColour);
+		addEntranceOrExitToMaze(this.MazeImage, entranceExit.getExit(), graphWidth, graphHeight,
+				0xFFFFFF - GraphToImage.pathColour);
 
 		// Save image
 		ImageIO.write(this.MazeImage, "PNG", outputFile);
