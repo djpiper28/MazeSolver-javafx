@@ -29,14 +29,11 @@ public class renderer implements Runnable {
 
 			guiJavaFX.graphicsContext.drawImage(image, 0, 0);
 
-			image = null;
-			after = null;
 		} else {
 			Image image = SwingFXUtils.toFXImage(mazeSolver.mazeImage, null);
 
 			guiJavaFX.graphicsContext.drawImage(image, 0, 0);
 
-			image = null;
 		}
 
 		System.out.println("Render call - " + (System.currentTimeMillis() - time) + "ms");
