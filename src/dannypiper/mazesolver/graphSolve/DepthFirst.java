@@ -9,18 +9,18 @@ public class DepthFirst extends SolveInterface {
 
 	private boolean[] visited;
 	private boolean finished;
-	private int imageWidth, imageHeight;
+	private int graphHeight, graphWidth;
 
 	private void dumpPath() {
 		try {
-			ImageIO.write((new GraphToImage(imageHeight, imageWidth, super.path)).getImage(), "PNG",
+			ImageIO.write((new GraphToImage(graphHeight, graphWidth, super.path)).getImage(), "PNG",
 					new File("DUMP/Image" + System.currentTimeMillis() + "-" + super.path.size() + ".png"));
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
 	}
 
-	public DepthFirst(List<Arc>[] IndexedAdjacencyList, EntranceExit entranceExit, int imageWidth, int imageHeight) {
+	public DepthFirst(List<Arc>[] IndexedAdjacencyList, EntranceExit entranceExit, int graphWidth, int graphHeight) {
 		super(IndexedAdjacencyList, entranceExit);
 		visited = new boolean[super.IndexedAdjacencyList.length];
 
@@ -30,8 +30,8 @@ public class DepthFirst extends SolveInterface {
 		}
 
 		finished = false;
-		this.imageWidth = imageWidth;
-		this.imageHeight = imageHeight;
+		this.graphWidth = graphWidth;
+		this.graphHeight = graphHeight;
 	}
 
 	private void explore(Arc arc) {

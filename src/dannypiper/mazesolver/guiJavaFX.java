@@ -43,6 +43,7 @@ public class guiJavaFX extends Application {
 
 	private final static double greyConstant = 0.20d;
 	private final static double greyConstantAccent = 0.3d;
+	private final static int taskbarHeight = 40;
 
 	// Screen properties
 	public static int XMAX = 1920;
@@ -247,6 +248,11 @@ public class guiJavaFX extends Application {
 		solveScene = new Scene(graphSolveVbox);
 
 		stage.setScene(solveScene);
+		
+		stage.setMinWidth(0);
+		stage.setMinHeight(0);
+		
+		stage.sizeToScene();
 		stage.setResizable(false);
 	}
 
@@ -269,13 +275,17 @@ public class guiJavaFX extends Application {
 		}
 		if (mazeSolver.imageHeight > YMAX) {
 			b = YMAX;
-		}
+		}		
 
 		// Set the scene up
 		solveScene = new Scene(scrollPane, a, b);
 		stage.setScene(solveScene);
 		stage.setX(0);
 		stage.setY(0);
+		
+		if(a==XMAX && b==YMAX) {
+			stage.sizeToScene();
+		}
 
 		// Add click event to canvas
 		canvas.setOnMouseClicked(e -> {
@@ -387,7 +397,7 @@ public class guiJavaFX extends Application {
 		if (Screen.getPrimary() != null) {
 			System.out.println(Screen.getPrimary().getBounds());
 			XMAX = (int) Screen.getPrimary().getBounds().getWidth();
-			YMAX = (int) Screen.getPrimary().getBounds().getHeight() - 40;
+			YMAX = (int) Screen.getPrimary().getBounds().getHeight() - guiJavaFX.taskbarHeight;
 		}
 
 		initLabels();

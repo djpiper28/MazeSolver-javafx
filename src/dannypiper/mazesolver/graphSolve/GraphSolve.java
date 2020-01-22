@@ -34,6 +34,9 @@ public class GraphSolve implements Runnable {
 
 		ImageToGraph imageMapper = new ImageToGraph(this.MazeImage);
 
+		System.out.println("Maze dimensions image:("+imageWidth+","+imageHeight+")"+
+				"\ngraph:("+graphWidth+","+graphHeight+")");
+		
 		System.out.println("Mapping image to graph");
 		this.IndexedAdjacencyList = imageMapper.mapImageToGraph();
 		System.out.println("Mapped image to graph");
@@ -136,6 +139,6 @@ public class GraphSolve implements Runnable {
 		// Save image
 		ImageIO.write(this.MazeImage, "PNG", outputFile);
 		guiJavaFX.progressIndicator.setProgress(1.00d);
-		guiJavaFX.solvingStatus.setText("Solved the maze, please close this program.");
+		guiJavaFX.solvingStatus.setText("Solved the maze");
 	}
 }

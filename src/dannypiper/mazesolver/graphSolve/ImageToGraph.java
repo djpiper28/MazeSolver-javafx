@@ -80,61 +80,64 @@ public class ImageToGraph {
 
 		assert (entrance != -1 || exit != -1);
 
-		return new EntranceExit(entrance, exit);
+		return new EntranceExit(entrance, exit, graphWidth);
 	}
 
 	public List<Arc>[] mapImageToGraph() {
 		@SuppressWarnings("unchecked")
 		List<Arc>[] IndexedAdjList = new List[((image.getWidth() - 1) / 2) * ((image.getHeight() - 1) / 2)];
 
-		int width = image.getWidth();
-		int height = image.getHeight();
+		int imageWidth = image.getWidth();
+		int imageHeight = image.getHeight();
 
-		int graphWidth = (width - 1) / 2;
-		int graphHeight = (height - 1) / 2;
+		int graphWidth = (imageWidth - 1) / 2;
+		int graphHeight = (imageHeight - 1) / 2;
 
 		for (int i = 0; i < IndexedAdjList.length; i++) {
 			IndexedAdjList[i] = new LinkedList<Arc>();
 		}
 
-		for (int x = 1; x < width; x += 2) {
-			for (int y = 1; y < height; y += 2) {
+		for (int x = 1; x < imageWidth; x += 2) {
+			for (int y = 1; y < imageHeight; y += 2) {
 				// Scan for paths from each node
+				int coord =(x - 1) / 2 + graphWidth * (y - 1) / 2;
 				if (image.getRGB(x - 1, y) == white && x > 1) {
-					IndexedAdjList[(x - 1) / 2 + graphWidth * (y - 1) / 2].add(
-							new Arc((x - 1) / 2 + graphWidth * (y - 1) / 2
-									, (x - 3) / 2  + graphWidth * (y - 1) / 2));
+					IndexedAdjList[coord].add(
+							new Arc(coord, coord - 1));
 				}
-				if (image.getRGB(x + 1, y) == white && x < width - 2) {
+				if (image.getRGB(x + 1, y) == white && x < imageWidth - 2) {
 					// -1 to be 0 bound, -1 to check it is not on the first path-filled line so -2
-					IndexedAdjList[(x - 1) / 2 + graphWidth * (y - 1) / 2].add(
-							new Arc((x - 1) / 2 + graphWidth * (y - 1) / 2
-									, (x + 1) / 2  + graphWidth * (y - 1) / 2));
+					IndexedAdjList[coord].add(
+							new Arc(coord, coord + 1));
 				}
 				if (image.getRGB(x, y - 1) == white && y > 1) {
-					IndexedAdjList[(x - 1) / 2 + graphWidth * (y - 1) / 2].add(
-							new Arc((x - 1) / 2 + graphWidth * (y - 1) / 2
-									, (x - 1) / 2 + graphWidth * (y - 3) / 2));
+					IndexedAdjList[coord].add(
+							new Arc(coord, coord - graphWidth));
 				}
-				if (image.getRGB(x, y + 1) == white && y < height - 2) {
+				if (image.getRGB(x, y + 1) == white && y < imageHeight - 2) {
 					// -1 to be 0 bound, -1 to check it is not on the last path-filled line so - 2
-					IndexedAdjList[(x - 1) / 2 + graphWidth * (y - 1) / 2].add(
-							new Arc((x - 1) / 2 + graphWidth * (y - 1) / 2
-									, (x - 1) / 2 + graphWidth * (y + 1) / 2));
+					IndexedAdjList[coord].add(
+							new Arc(coord, coord + graphWidth));
 				}
 			}
 		}
 		
-		List<Arc> test = new LinkedList<Arc>();
+		/*List<Arc> test = new LinkedList<Arc>();
 		for(List<Arc> arcs : IndexedAdjList) {
 			test.addAll(arcs);
 		}
 		try {
-			ImageIO.write((new GraphToImage(height, width, test)).getImage(), "PNG"
-					, new File("DUMP/TEST.png"));
+			ImageIO.write((new GraphToImage(graphHeight, graphWidth, test)).getImage(), "PNG"
+					, new File("DUMP/TEST"+System.currentTimeMillis()+".png"));
 		} catch (IOException e) {
 			e.printStackTrace();
+		}*/
+		
+		int a = 0;
+		for(int i = 0;i < IndexedAdjList.length; i++) {
+			a+=IndexedAdjList[i].size();
 		}
+		System.out.println("Arcs found: "+a/2);
 
 		return IndexedAdjList;
 	}

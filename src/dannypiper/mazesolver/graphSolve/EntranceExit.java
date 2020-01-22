@@ -5,9 +5,14 @@ public class EntranceExit {
 	private int exitNode;
 	private int entranceNode;
 
-	public EntranceExit(int entrance, int exit) {
-		setEntrance(entrance);
-		setExit(exit);
+	public EntranceExit(int entrance, int exit, int graphWidth) {
+		if(graphWidth == (entrance % graphWidth) + 1 ){
+			setEntrance(exit);
+			setExit(entrance);
+		} else {
+			setEntrance(entrance);
+			setExit(exit);
+		}
 	}
 
 	public int getEntrance() {
