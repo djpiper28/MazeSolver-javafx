@@ -7,6 +7,8 @@ import java.util.List;
 
 import javax.imageio.ImageIO;
 
+import dannypiper.mazesolver.guiJavaFX;
+
 public class GraphSolve implements Runnable {
 
 	private BufferedImage MazeImage;
@@ -133,6 +135,7 @@ public class GraphSolve implements Runnable {
 
 		// Save image
 		ImageIO.write(this.MazeImage, "PNG", outputFile);
-		System.exit(0);
+		guiJavaFX.progressIndicator.setProgress(1.00d);
+		guiJavaFX.solvingStatus.setText("Solved the maze, please close this program.");
 	}
 }

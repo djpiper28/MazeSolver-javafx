@@ -70,8 +70,8 @@ public class guiJavaFX extends Application {
 	private static Canvas canvas;
 
 	// Graph Solve
-	private static Text solvingStatus;
-	private static ProgressIndicator progressIndicator;
+	public static Text solvingStatus;
+	public static ProgressIndicator progressIndicator;
 	private static VBox graphSolveVbox;
 
 	// Solve Type

@@ -3,7 +3,6 @@ package dannypiper.mazesolver;
 import java.awt.geom.AffineTransform;
 import java.awt.image.AffineTransformOp;
 import java.awt.image.BufferedImage;
-
 import dannypiper.mazesolver.imageSolve.mazeSolver;
 import javafx.embed.swing.SwingFXUtils;
 import javafx.scene.image.Image;
@@ -12,6 +11,11 @@ public class renderer implements Runnable {
 	public int width;
 	public int height;
 	public float scale;
+	
+	public void renderFinishedScreen ( ) {
+		guiJavaFX.graphicsContext.drawImage ( new Image ( "savingScreenImage.png" ), 0, 0 );
+		System.out.println ( "Rendered finished message" );
+	}
 
 	@Override
 	public void run() {

@@ -316,7 +316,8 @@ public class mazeSolver implements Runnable {
 		}
 		if (!test) {
 			// Exit as we are done!
-			System.exit(0);
+			renderObject.renderFinishedScreen();
+			System.out.println("Rednered");
 		}
 	}
 
