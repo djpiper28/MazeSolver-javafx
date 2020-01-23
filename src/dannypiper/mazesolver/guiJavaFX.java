@@ -102,7 +102,7 @@ public class guiJavaFX extends Application {
 		graphSolve.setOnMouseClicked(T -> {
 			updateRadioButtons();
 		});
-		imageSolve.setSelected(true);
+		graphSolve.setSelected(true);
 
 		typeSelectionHBox = new HBox(imageSolve, graphSolve);
 		typeSelectionHBox.setPadding(new Insets(5));
@@ -251,8 +251,8 @@ public class guiJavaFX extends Application {
 
 		stage.setScene(solveScene);
 		
-		stage.setMinWidth(0);
-		stage.setMinHeight(0);
+		stage.setMinWidth(100);
+		stage.setMinHeight(100);
 		
 		stage.sizeToScene();
 		stage.setResizable(false);
