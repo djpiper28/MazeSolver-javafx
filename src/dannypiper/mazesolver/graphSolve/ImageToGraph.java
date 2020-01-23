@@ -1,5 +1,6 @@
 package dannypiper.mazesolver.graphSolve;
 
+import java.awt.Color;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
@@ -16,11 +17,17 @@ public class ImageToGraph {
 	public ImageToGraph(BufferedImage inputImage) throws DimensionError {
 		if (validateDimension(inputImage.getWidth()) && validateDimension(inputImage.getHeight())) {
 			this.image = inputImage;
-			this.white = this.image.getRGB(1, 1);
+			this.white = 0xFFFFFF;
 		} else {
 			System.out.println("Dimension error.");
 			throw new DimensionError();
 		}
+	}
+	
+	private boolean isWhite(int colour) {
+		Color col = new Color(colour);
+		final int threshold = 150;
+		return col.getRed() > threshold && col.getGreen() > threshold && col.getBlue() > threshold;		
 	}
 
 	public EntranceExit getEntranceExit() {
@@ -36,7 +43,7 @@ public class ImageToGraph {
 
 		for (int y = 1; (y < height) && (entrance == -1 || exit == -1); y += 2) {
 			// y, x = 0
-			if (image.getRGB(0, y) == white) {
+			if (isWhite(image.getRGB(0, y))) {
 				if (!exitOrEntrance) {
 					entrance = graphWidth * (y - 1) / 2;
 					exitOrEntrance = true;
@@ -46,7 +53,7 @@ public class ImageToGraph {
 			}
 
 			// y, x = max
-			if (image.getRGB(image.getWidth() - 1, y) == white) {
+			if (isWhite(image.getRGB(image.getWidth() - 1, y))) {
 				if (!exitOrEntrance) {
 					entrance = graphWidth - 1 + graphWidth * (y - 1) / 2;
 					exitOrEntrance = true;
@@ -58,7 +65,7 @@ public class ImageToGraph {
 
 		for (int x = 1; (x < height) && (entrance == -1 || exit == -1); x += 2) {
 			// y = 0, x
-			if (image.getRGB(x, 0) == white) {
+			if (isWhite(image.getRGB(x, 0))) {
 				if (!exitOrEntrance) {
 					entrance = (x - 1) / 2;
 					exitOrEntrance = true;
@@ -68,7 +75,7 @@ public class ImageToGraph {
 			}
 
 			// y = max, x
-			if (image.getRGB(x, image.getHeight() - 1) == white) {
+			if (isWhite(image.getRGB(x, image.getHeight() - 1))) {
 				if (!exitOrEntrance) {
 					entrance = (x - 1) / 2 + (graphHeight - 1) * graphWidth;
 					exitOrEntrance = true;
@@ -101,37 +108,26 @@ public class ImageToGraph {
 			for (int y = 1; y < imageHeight; y += 2) {
 				// Scan for paths from each node
 				int coord =(x - 1) / 2 + graphWidth * (y - 1) / 2;
-				if (image.getRGB(x - 1, y) == white && x > 1) {
+				if (isWhite(image.getRGB(x - 1, y)) && x > 1) {
 					IndexedAdjList[coord].add(
 							new Arc(coord, coord - 1));
 				}
-				if (image.getRGB(x + 1, y) == white && x < imageWidth - 2) {
+				if (isWhite(image.getRGB(x + 1, y)) && x < imageWidth - 2) {
 					// -1 to be 0 bound, -1 to check it is not on the first path-filled line so -2
 					IndexedAdjList[coord].add(
 							new Arc(coord, coord + 1));
 				}
-				if (image.getRGB(x, y - 1) == white && y > 1) {
+				if (isWhite(image.getRGB(x, y - 1)) && y > 1) {
 					IndexedAdjList[coord].add(
 							new Arc(coord, coord - graphWidth));
 				}
-				if (image.getRGB(x, y + 1) == white && y < imageHeight - 2) {
+				if (isWhite(image.getRGB(x, y + 1)) && y < imageHeight - 2) {
 					// -1 to be 0 bound, -1 to check it is not on the last path-filled line so - 2
 					IndexedAdjList[coord].add(
 							new Arc(coord, coord + graphWidth));
 				}
 			}
 		}
-		
-		/*List<Arc> test = new LinkedList<Arc>();
-		for(List<Arc> arcs : IndexedAdjList) {
-			test.addAll(arcs);
-		}
-		try {
-			ImageIO.write((new GraphToImage(graphHeight, graphWidth, test)).getImage(), "PNG"
-					, new File("DUMP/TEST"+System.currentTimeMillis()+".png"));
-		} catch (IOException e) {
-			e.printStackTrace();
-		}*/
 		
 		int a = 0;
 		for(int i = 0;i < IndexedAdjList.length; i++) {

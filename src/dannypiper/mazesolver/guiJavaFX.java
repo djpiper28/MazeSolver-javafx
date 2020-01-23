@@ -82,7 +82,6 @@ public class guiJavaFX extends Application {
 	private static HBox typeSelectionHBox;
 
 	private static RadioButton depthFirst;
-	private static RadioButton dijkstras;
 	private static ToggleGroup graphGroup;
 	private static HBox graphSolveTypeHBox;
 
@@ -103,7 +102,7 @@ public class guiJavaFX extends Application {
 		graphSolve.setOnMouseClicked(T -> {
 			updateRadioButtons();
 		});
-		graphSolve.setSelected(true);
+		imageSolve.setSelected(true);
 
 		typeSelectionHBox = new HBox(imageSolve, graphSolve);
 		typeSelectionHBox.setPadding(new Insets(5));
@@ -112,8 +111,6 @@ public class guiJavaFX extends Application {
 		depthFirst = new RadioButton("Depth First ");
 		depthFirst.setToggleGroup(graphGroup);
 		depthFirst.setSelected(true);
-		dijkstras = new RadioButton("Dijkstras Algorithm ");
-		dijkstras.setToggleGroup(graphGroup);
 
 		graphSolveTypeHBox = new HBox(depthFirst);// , dijkstras);
 		graphSolveTypeHBox.setVisible(false);
@@ -234,6 +231,11 @@ public class guiJavaFX extends Application {
 		solvingStatus.setFont(Font.font(FONT, FontWeight.BOLD, FontPosture.REGULAR, 14));
 
 		progressIndicator = new ProgressIndicator();
+		progressIndicator.setOnMousePressed(e -> {
+			if(progressIndicator.getProgress() == 1) {
+				System.exit(0);
+			}
+		});
 		// No progress is passed into the constructor so it shows a spinning thing
 
 		// Set scene up
@@ -414,7 +416,7 @@ public class guiJavaFX extends Application {
 
 		// Apply darkmode to the container and contents
 		darkModeify(vBox, typeSelectionHBox, graphSolveTypeHBox, imageSolveTypeHBox, imageSolve, graphSolve, depthFirst,
-				dijkstras, deadEndFilling);
+				deadEndFilling);
 
 		darkModeAccent(selectImageToSaveAsbutton, selectImageToOpenButton, solveButton);
 

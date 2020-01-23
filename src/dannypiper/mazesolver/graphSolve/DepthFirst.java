@@ -45,7 +45,7 @@ public class DepthFirst extends SolveInterface {
 			finished = true;
 			return;
 		}
-
+		
 		for (Arc a : super.IndexedAdjacencyList[arc.endingNode]) {
 			if (!visited[a.endingNode] && !finished) {
 				explore(a);
