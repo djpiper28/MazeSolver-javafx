@@ -6,13 +6,13 @@ import java.io.IOException;
 
 import javax.imageio.ImageIO;
 
-import dannypiper.mazesolver.renderer;
+import dannypiper.mazesolver.Renderer;
 import dannypiper.mazesolver.renderless;
 import javafx.scene.image.ImageView;
 
 public class mazeSolver implements Runnable {
 
-	public static BufferedImage mazeImage = null;
+	public static BufferedImage mazeImage;
 	public static boolean test;
 
 	public static int imageHeight;
@@ -27,14 +27,13 @@ public class mazeSolver implements Runnable {
 	public static final int exitPath = 0xFF00FF;
 
 	public static ImageView imageView;
-	private static Thread renderThread;
-	private static renderer renderObject;
+	private static Renderer renderObject;
 
 	public static Thread[] solversTHR;
 	public static solver[] solversOBJ;
 
 	public static void renderMaze() {
-		mazeSolver.renderThread.run();
+		renderObject.run();
 	}
 
 	public mazeSolver(File outputFile, File image) {
@@ -69,6 +68,72 @@ public class mazeSolver implements Runnable {
 		imageWidth = mazeImage.getWidth();
 	}
 
+	private int count(int x, int y) {
+		int count = 0;
+		if (mazeSolver.graphArray[x + 1][y]) {
+			count++;
+		}
+		if (mazeSolver.graphArray[x - 1][y]) {
+			count++;
+		}
+		if (mazeSolver.graphArray[x][y + 1]) {
+			count++;
+		}
+		if (mazeSolver.graphArray[x][y - 1]) {
+			count++;
+		}
+		return count;
+	}
+
+	private void initRenderer() {
+		mazeImage.setAccelerationPriority(1);
+		if (test) {
+			renderObject = new renderless(imageRenderScale, imageWidth, imageHeight);
+		} else {
+			renderObject = new Renderer(imageRenderScale, imageWidth, imageHeight);
+		}
+	}
+
+	private void initSolverThreads() {
+		int cores = Runtime.getRuntime().availableProcessors() / 2;
+
+		if (cores <= 2) {
+			cores = 1;
+		}
+		// Doesn't eat all of the CPU -kind of important
+		solversOBJ = new solver[cores];
+		solversTHR = new Thread[cores];
+		// set threads data
+		// get and set segments
+		int segments = imageHeight / cores;
+
+		System.out.println("Image dimensions: (" + imageHeight + ", " + imageWidth + ")");
+		System.out.println(cores + " Cores Detected - thread y height is " + segments + " running with "
+				+ (Runtime.getRuntime().totalMemory() / 1024 / 1024) + " MB of ram");
+		
+		for (int i = 0; i < cores; i++) {
+			solversOBJ[i] = new solver();
+			solversOBJ[i].YMin = segments * i;
+			if (solversOBJ[i].YMin == 0) {
+				solversOBJ[i].YMin = 1;
+			}
+			solversOBJ[i].YMax = solversOBJ[i].YMin + segments - 1;
+			if (i + 1 == cores) {
+				solversOBJ[i].YMax = imageHeight - 2;
+			}
+
+			// init thread and execute
+			solversTHR[i] = new Thread(solversOBJ[i], "Solver thread: " + i + " of " + cores);
+			solversTHR[i].start();
+		}
+	}
+
+	private void initThreads() {
+		initRenderer();
+
+		initSolverThreads();
+	}
+
 	private void loadImage(File image) {
 		// open image
 		try {
@@ -97,20 +162,7 @@ public class mazeSolver implements Runnable {
 			for (int y = YMin; y < YMax; y++) {
 				for (int x = 1; x < mazeSolver.imageWidth - 2; x++) { // will not delete the start or end
 					if (mazeSolver.graphArray[x][y]) {
-						int count = 0;
-						if (mazeSolver.graphArray[x + 1][y]) {
-							count++;
-						}
-						if (mazeSolver.graphArray[x - 1][y]) {
-							count++;
-						}
-						if (mazeSolver.graphArray[x][y + 1]) {
-							count++;
-						}
-						if (mazeSolver.graphArray[x][y - 1]) {
-							count++;
-						}
-						if (count == 1) {
+						if (count(x, y) == 1) {
 							changedThisPass = true;
 							mazeSolver.graphArray[x][y] = false;
 							mazeImage.setRGB(x, y, path);
@@ -124,25 +176,7 @@ public class mazeSolver implements Runnable {
 			for (int y = YMax; y > YMin; y--) {
 				for (int x = mazeSolver.imageWidth - 2; x > 1; x--) { // will not delete the start or end
 					if (mazeSolver.graphArray[x][y]) {
-						int count = 0;
-						if (mazeSolver.graphArray[x + 1][y]) {
-							count++;
-						}
-						if (mazeSolver.graphArray[x - 1][y]) {
-							count++;
-						}
-						if (mazeSolver.graphArray[x][y + 1]) {
-							count++;
-						}
-						try {
-							if (mazeSolver.graphArray[x][y - 1]) {
-								count++;
-							}
-						} catch (Exception e) {
-							e.printStackTrace();
-							System.out.println("ODD ERROR ON CONNECTION COUNTER");
-						}
-						if (count == 1) {
+						if (count(x, y) == 1) {
 							changedThisPass = true;
 							mazeSolver.graphArray[x][y] = false;
 							mazeImage.setRGB(x, y, path);
@@ -155,25 +189,7 @@ public class mazeSolver implements Runnable {
 			for (int y = YMin; y < YMax; y++) {
 				for (int x = mazeSolver.imageWidth - 2; x > 0; x--) { // will not delete the start or end
 					if (mazeSolver.graphArray[x][y]) {
-						int count = 0;
-						if (mazeSolver.graphArray[x + 1][y]) {
-							count++;
-						}
-						if (mazeSolver.graphArray[x - 1][y]) {
-							count++;
-						}
-						if (mazeSolver.graphArray[x][y + 1]) {
-							count++;
-						}
-						try {
-							if (mazeSolver.graphArray[x][y - 1]) {
-								count++;
-							}
-						} catch (Exception e) {
-							e.printStackTrace();
-							System.out.println("ODD ERROR ON CONNECTION COUNTER");
-						}
-						if (count == 1) {
+						if (count(x, y) == 1) {
 							changedThisPass = true;
 							mazeSolver.graphArray[x][y] = false;
 							mazeImage.setRGB(x, y, path);
@@ -186,25 +202,7 @@ public class mazeSolver implements Runnable {
 			for (int y = YMax; y > YMin; y--) {
 				for (int x = mazeSolver.imageWidth - 2; x > 0; x--) { // will not delete the start or end
 					if (mazeSolver.graphArray[x][y]) {
-						int count = 0;
-						if (mazeSolver.graphArray[x + 1][y]) {
-							count++;
-						}
-						if (mazeSolver.graphArray[x - 1][y]) {
-							count++;
-						}
-						if (mazeSolver.graphArray[x][y + 1]) {
-							count++;
-						}
-						try {
-							if (mazeSolver.graphArray[x][y - 1]) {
-								count++;
-							}
-						} catch (Exception e) {
-							e.printStackTrace();
-							System.out.println("ODD ERROR ON CONNECTION COUNTER");
-						}
-						if (count == 1) {
+						if (count(x, y) == 1) {
 							changedThisPass = true;
 							mazeSolver.graphArray[x][y] = false;
 							mazeImage.setRGB(x, y, path);
@@ -217,90 +215,18 @@ public class mazeSolver implements Runnable {
 
 	@Override
 	public void run() {
-		mazeImage.setAccelerationPriority(1);
-		if (test) {
-			renderObject = new renderless();
-		} else {
-			renderObject = new renderer();
-		}
-		renderObject.scale = imageRenderScale;
-		renderObject.width = imageWidth;
-		renderObject.height = imageHeight;
-
-		renderThread = new Thread(renderObject, "RENDERER");
-
-		// init
-		int cores = Runtime.getRuntime().availableProcessors() / 2;
-
-		if (cores <= 0) {
-			cores = 1;
-		}
-		// Doesn't eat all of the CPU -kind of important
-		solversOBJ = new solver[cores];
-		solversTHR = new Thread[cores];
-		// set threads data
-		for (int i = 0; i < cores; i++) {
-			solversOBJ[i] = new solver();
-		}
-		// get and set segments
-		int segments = imageHeight / cores;
-
-		System.out.println("Image dimensions: (" + imageHeight + ", " + imageWidth + ")");
-		System.out.println(cores + " Cores Detected - thread y height is " + segments + " running with "
-				+ (Runtime.getRuntime().totalMemory() / 1024 / 1024) + " MB of ram");
-		int i = 0;
-		for (solver s : solversOBJ) {
-			// set s
-			s.YMin = segments * i;
-			if (s.YMin == 0) {
-				s.YMin = 1;
-			}
-			s.YMax = s.YMin + segments - 1;
-			if (i + 1 == cores) {
-				s.YMax = imageHeight - 2;
-			}
-
-			// init thread and execute
-			solversTHR[i] = new Thread(s, "Solver thread: " + i + " of " + cores);
-			solversTHR[i].start();
-			i++;
-		}
-		// lets the solvers get a head start - timing stuff
-		try {
-			Thread.sleep(50);
-		} catch (InterruptedException e) {
-			e.printStackTrace();
-		}
+		initThreads();
 		// wait for all threads to finish
-		boolean finished = false;
 		long time = System.currentTimeMillis();
 		System.out.println("started solve");
-		while (!finished) {
-			long renderTime = System.currentTimeMillis();
-			finished = true;
-			for (solver s : solversOBJ) {
-				if (!s.finished) {
-					finished = false;
-				}
-			}
-			try {
-				renderMaze();
-				long x = 16 - System.currentTimeMillis() - renderTime;
-				if (x > 0) {
-					Thread.sleep(x);
-				}
-				System.gc();
-			} catch (InterruptedException e) {
-				e.printStackTrace();
-			}
-		}
+
+		solve();
+
 		System.out.println("Final pass...");
 
 		process();
 
-		//
 		System.out.println("Finished after " + (System.currentTimeMillis() - time) + "ms.");
-		System.gc();
 		// out
 
 		renderMaze();
@@ -317,7 +243,7 @@ public class mazeSolver implements Runnable {
 		if (!test) {
 			// Exit as we are done!
 			renderObject.renderFinishedScreen();
-			System.out.println("Rednered");
+			System.out.println("Rendered");
 		}
 	}
 
@@ -326,6 +252,25 @@ public class mazeSolver implements Runnable {
 			ImageIO.write(mazeImage, "png", fileToSaveAs);
 		} catch (Exception e) {
 			e.printStackTrace();
+		}
+	}
+
+	private void solve() {
+		boolean finished = false;
+		while (!finished) {
+			long renderTime = System.currentTimeMillis();
+			finished = true;
+			for (solver s : solversOBJ) {
+				if (!s.finished) {
+					finished = false;
+				}
+			}
+			try {
+				renderMaze();
+				Thread.sleep(16);
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
 		}
 	}
 

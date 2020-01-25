@@ -6,7 +6,7 @@ public class EntranceExit {
 	private int entranceNode;
 
 	public EntranceExit(int entrance, int exit, int graphWidth) {
-		if(graphWidth == (entrance % graphWidth) + 1 ){
+		if (graphWidth == (entrance % graphWidth) + 1) {
 			setEntrance(exit);
 			setExit(entrance);
 		} else {

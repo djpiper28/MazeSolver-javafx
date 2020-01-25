@@ -4,9 +4,7 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 import java.util.List;
-
 import javax.imageio.ImageIO;
-
 import dannypiper.mazesolver.guiJavaFX;
 
 public class GraphSolve implements Runnable {
@@ -34,9 +32,9 @@ public class GraphSolve implements Runnable {
 
 		ImageToGraph imageMapper = new ImageToGraph(this.MazeImage);
 
-		System.out.println("Maze dimensions image:("+imageWidth+","+imageHeight+")"+
-				"\ngraph:("+graphWidth+","+graphHeight+")");
-		
+		System.out.println("Maze dimensions image:(" + imageWidth + "," + imageHeight + ")" + "\ngraph:(" + graphWidth
+				+ "," + graphHeight + ")");
+
 		System.out.println("Mapping image to graph");
 		this.IndexedAdjacencyList = imageMapper.mapImageToGraph();
 		System.out.println("Mapped image to graph");
@@ -138,7 +136,12 @@ public class GraphSolve implements Runnable {
 
 		// Save image
 		ImageIO.write(this.MazeImage, "PNG", outputFile);
-		guiJavaFX.progressIndicator.setProgress(1.00d);
-		guiJavaFX.solvingStatus.setText("Solved the maze");
+		javafx.application.Platform.runLater(new Runnable() {
+			@Override
+			public void run() {
+				guiJavaFX.progressIndicator.setProgress(1.00d);
+				guiJavaFX.solvingStatus.setText("Solved the maze");	
+			}		
+		});
 	}
 }

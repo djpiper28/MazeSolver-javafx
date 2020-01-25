@@ -2,12 +2,8 @@ package dannypiper.mazesolver.graphSolve;
 
 import java.awt.Color;
 import java.awt.image.BufferedImage;
-import java.io.File;
-import java.io.IOException;
 import java.util.LinkedList;
 import java.util.List;
-
-import javax.imageio.ImageIO;
 
 public class ImageToGraph {
 
@@ -22,12 +18,6 @@ public class ImageToGraph {
 			System.out.println("Dimension error.");
 			throw new DimensionError();
 		}
-	}
-	
-	private boolean isWhite(int colour) {
-		Color col = new Color(colour);
-		final int threshold = 150;
-		return col.getRed() > threshold && col.getGreen() > threshold && col.getBlue() > threshold;		
 	}
 
 	public EntranceExit getEntranceExit() {
@@ -90,6 +80,12 @@ public class ImageToGraph {
 		return new EntranceExit(entrance, exit, graphWidth);
 	}
 
+	private boolean isWhite(int colour) {
+		Color col = new Color(colour);
+		final int threshold = 150;
+		return col.getRed() > threshold && col.getGreen() > threshold && col.getBlue() > threshold;
+	}
+
 	public List<Arc>[] mapImageToGraph() {
 		@SuppressWarnings("unchecked")
 		List<Arc>[] IndexedAdjList = new List[((image.getWidth() - 1) / 2) * ((image.getHeight() - 1) / 2)];
@@ -107,33 +103,29 @@ public class ImageToGraph {
 		for (int x = 1; x < imageWidth; x += 2) {
 			for (int y = 1; y < imageHeight; y += 2) {
 				// Scan for paths from each node
-				int coord =(x - 1) / 2 + graphWidth * (y - 1) / 2;
+				int coord = (x - 1) / 2 + graphWidth * (y - 1) / 2;
 				if (isWhite(image.getRGB(x - 1, y)) && x > 1) {
-					IndexedAdjList[coord].add(
-							new Arc(coord, coord - 1));
+					IndexedAdjList[coord].add(new Arc(coord, coord - 1));
 				}
 				if (isWhite(image.getRGB(x + 1, y)) && x < imageWidth - 2) {
 					// -1 to be 0 bound, -1 to check it is not on the first path-filled line so -2
-					IndexedAdjList[coord].add(
-							new Arc(coord, coord + 1));
+					IndexedAdjList[coord].add(new Arc(coord, coord + 1));
 				}
 				if (isWhite(image.getRGB(x, y - 1)) && y > 1) {
-					IndexedAdjList[coord].add(
-							new Arc(coord, coord - graphWidth));
+					IndexedAdjList[coord].add(new Arc(coord, coord - graphWidth));
 				}
 				if (isWhite(image.getRGB(x, y + 1)) && y < imageHeight - 2) {
 					// -1 to be 0 bound, -1 to check it is not on the last path-filled line so - 2
-					IndexedAdjList[coord].add(
-							new Arc(coord, coord + graphWidth));
+					IndexedAdjList[coord].add(new Arc(coord, coord + graphWidth));
 				}
 			}
 		}
-		
+
 		int a = 0;
-		for(int i = 0;i < IndexedAdjList.length; i++) {
-			a+=IndexedAdjList[i].size();
+		for (int i = 0; i < IndexedAdjList.length; i++) {
+			a += IndexedAdjList[i].size();
 		}
-		System.out.println("Arcs found: "+a/2);
+		System.out.println("Arcs found: " + a / 2);
 
 		return IndexedAdjList;
 	}
