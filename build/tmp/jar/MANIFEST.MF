@@ -1,0 +1,10 @@
+Manifest-Version: 1.0
+Manifest-Vesrion: 1.0
+Implementation-Title: Gradle
+Implementation-Version: 1.0-SNAPSHOT
+Build-Prefix: beta
+Build-Version: 1.0
+Build-Suffix: release
+Created-By: Danny Piper (djpiper28 on github)
+Main-Class: dannypiper.mazesolver.guiJavaFX
+
