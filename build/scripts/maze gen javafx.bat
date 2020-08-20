@@ -82,7 +82,7 @@ set CMD_LINE_ARGS=%*
 :execute
 @rem Setup the command line
 
-set CLASSPATH=%APP_HOME%\lib\maze gen javafx-1.1-SNAPSHOT.jar;%APP_HOME%\lib\javafx-controls-14-linux.jar;%APP_HOME%\lib\javafx-swing-14-linux.jar;%APP_HOME%\lib\javafx-graphics-14-linux.jar;%APP_HOME%\lib\javafx-graphics-14.jar;%APP_HOME%\lib\javafx-base-14-linux.jar;%APP_HOME%\lib\javafx-base-14.jar
+set CLASSPATH=%APP_HOME%\lib\maze gen javafx-1.1-SNAPSHOT.jar;%APP_HOME%\lib\javafx-swing-14-linux.jar;%APP_HOME%\lib\javafx-controls-14-linux.jar;%APP_HOME%\lib\javafx-graphics-14-linux.jar;%APP_HOME%\lib\javafx-graphics-14.jar;%APP_HOME%\lib\javafx-base-14-linux.jar;%APP_HOME%\lib\javafx-base-14.jar
 
 @rem Execute maze gen javafx
 "%JAVA_EXE%" %DEFAULT_JVM_OPTS% %JAVA_OPTS% %MAZE_GEN_JAVAFX_OPTS%  -classpath "%CLASSPATH%" dannypiper.mazesolver.Main %CMD_LINE_ARGS%
