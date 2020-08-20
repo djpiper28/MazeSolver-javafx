@@ -124,7 +124,7 @@ public class guiJavaFX extends Application {
 		imageSolveTypeHBox.setPadding(new Insets(5));
 	}
 
-	public static void main(String args[]) {
+	public static void run(String args[]) {
 		boolean test = false;
 		String path = "";
 		for (String arg : args) {
